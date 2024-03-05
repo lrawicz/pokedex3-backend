@@ -87,7 +87,8 @@ export default  class pokemonController{
             select: {
                 ability: {
                     select: {
-                        name: true
+                        name: true,
+                        id: true
                     }
                 },
                 generation: true,
@@ -142,6 +143,7 @@ export default  class pokemonController{
                         }
                     },{})
         }
+        console.log(pokemon.abilities["slot-1"])
         return pokemon
     }
 }
