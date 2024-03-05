@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+}
+
+model Pokemon {
+  id         Int                 @id 
+  name      String @unique
+  specie    String?
+  type1     String? 
+  type2    String?
+  generation String
+  hp      Int
+  attack  Int
+  defense Int
+  specialAttack Int
+  specialDefense Int
+  speed Int
+
+  weight Int?
+  height Int?
+  color String?
+  isBaby Boolean?
+  isLegendary Boolean?
+  isMythical Boolean?
+  growthRate String?
+  habitat String?
+  pastHabilities Json?
+  abilities PokemonAbility[]
+  movesLearns LearnMove[]
+  genderRate Int?
+  captureRate Int?
+  hasGenderDifferences Boolean?
+}
+
+
+model Ability {
+  id         Int                 @id @default(autoincrement())
+  name      String @unique
+  flavor_text String
+  generation String
+  new Boolean? @default(false)
+  mechanics  Mechanic[]
+  is_main_series Boolean @default(true)
+  pokemonsAbilities PokemonAbility[]
+  //related_moves String[]
+}
+
+model Mechanic {
+  id         Int                 @id @default(autoincrement())
+  abilityId  Int @default(0)
+  ability    Ability @relation(fields: [abilityId], references: [id])
+  triggers MechanicsTriggers[]
+  targets MechanicsTargets[]
+  effects MechanicsEffects[]
+}
+
+model Trigger {
+  id    Int                 @id @default(autoincrement())
+  name  String @unique
+  mechanics MechanicsTriggers[]
+}
+
+model Target {
+  id    Int                 @id @default(autoincrement())
+  name  String @unique
+  mechanics MechanicsTargets[]
+}
+
+model Effect {
+  id    Int                 @id @default(autoincrement())
+  name  String @unique
+  mechanics MechanicsEffects[]
+}
+model MechanicsTriggers {
+  trigger    Trigger     @relation(fields: [triggerId], references: [id], onDelete: Cascade)
+  triggerId     Int 
+  mechanic   Mechanic @relation(fields: [mechanicId], references: [id], onDelete: Cascade)
+  mechanicId Int 
+  @@id([mechanicId , triggerId])
+}
+model MechanicsTargets {
+  target    Target     @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  targetId     Int 
+  mechanic   Mechanic @relation(fields: [mechanicId], references: [id], onDelete: Cascade)
+  mechanicId Int 
+  @@id([mechanicId , targetId])
+}
+
+model MechanicsEffects {
+  effect    Effect     @relation(fields: [effectId], references: [id], onDelete: Cascade)
+  effectId     Int 
+  mechanic   Mechanic @relation(fields: [mechanicId], references: [id], onDelete: Cascade)
+  mechanicId Int 
+  @@id([mechanicId , effectId])
+}
+
+model PokemonAbility {
+  id         Int                 @id @default(autoincrement())
+  pokemonId  Int @default(0)
+  pokemon    Pokemon @relation(fields: [pokemonId], references: [id])
+  abilityId  Int @default(0)
+  ability    Ability @relation(fields: [abilityId], references: [id])
+  slot       Int?
+  isHidden  Boolean?
+  generation String
+}
+
+model move {
+    id Int @id
+    name String
+    flavor_text String?
+    effect String
+    power Int?
+    priority Int
+    accuracy Int?
+    type String
+    damage_class String
+    target String
+    pp Int
+    stat_changes Json 
+    effect_chance Int?
+    meta_ailment String?
+    meta_ailment_chance Int?
+    meta_category String?
+    meta_crit_rate Int?
+    meta_drain Int?
+    meta_flinch_chance Int?
+    meta_healing Int?
+    meta_max_hits Int?
+    meta_max_turns Int?
+    meta_min_hits Int?
+    meta_min_turns Int?
+    meta_stat_chance Int?
+    generation String
+    learnMoves LearnMove[]
+}
+
+model versionGroup{
+  id Int @id
+  name String
+  generation String
+  order Int
+  versions String[]
+  leanMoves LearnMove[]
+}
+model LearnMove{
+  id Int @id
+  pokemonId Int
+  moveId Int
+  method String[]
+  versionGroupId Int
+  level Int
+
+  versionGroup versionGroup @relation(fields: [versionGroupId], references: [id])  
+  move move @relation(fields: [moveId], references: [id])
+  pokemon Pokemon @relation(fields: [pokemonId], references: [id])
+}
