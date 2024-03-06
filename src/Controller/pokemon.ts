@@ -88,7 +88,13 @@ export default  class pokemonController{
         return null
     }
 
-    static async getPokemon(pokemonRequest:number|string, generation:number=100):Promise<any>{
+    static async searchPokemon({options, generation}:{options:any, generation:any}){
+        let pokemons = await prisma.pokemon.findMany({select: {id: true, name: true}})
+        return pokemons
+    }
+    static async getPokemonbyId(
+        {pokemonRequest=0, generation=9999}:
+        {pokemonRequest:number|string, generation:number}):Promise<any>{
         let pokemon:any;
         let where:any;
         where = isNaN(Number(pokemonRequest))? {name: String(pokemonRequest)}: {id: Number(pokemonRequest)};
