@@ -3,58 +3,61 @@ import { toArabic } from 'typescript-roman-numbers-converter'
 const prisma = new PrismaClient()
 
 type mechanic = {
-    triggers: String[]|undefined,
-    targets: String[]|undefined,
-    effects: String[]|undefined
+    triggers?: String[],
+    targets?: String[],
+    effects?: String[]
 }
 export class AbilityController{
     
-
-    static async findByMechanic(mechanic:mechanic):Promise <any[]> {
+    static async findByMechanic({mechanic,generation,name,id}:
+        {mechanic?:mechanic,generation?:number,name?:string[],id?:number[]}):
+        Promise <any[]> {
         await prisma.$connect()
-        let trigger_query:string[]=[], target_query:string[]=[], effect_query:string[]=[]
-        if(mechanic.triggers != undefined && mechanic.triggers.length > 0){
-            trigger_query = mechanic.triggers.map((trigger) => {
-                return `SELECT a.id from "MechanicsTriggers" me
-                INNER JOIN "Trigger" t  ON t.id  = me."triggerId"  
-                INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
-                WHERE t.name = '${trigger}'
-                GROUP BY a.id`
-            })
-        }
-        if(mechanic.targets != undefined && mechanic.targets.length > 0){
-            target_query = mechanic.targets.map((target) => {
-               return `SELECT a.id from "MechanicsTargets" me
-               INNER JOIN "Target" t  ON e.id  = me."targetId"  
-               INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-               INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
-               WHERE t.name = '${target}'
-               GROUP BY a.id`
-           })
-        }
-        if(mechanic.effects != undefined && mechanic.effects.length > 0){
-            effect_query = mechanic.effects.map((effect) => {
-               return `SELECT a.id from "MechanicsEffects" me
-               INNER JOIN "Effect" e  ON e.id  = me."effectId"  
-               INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-               INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
-               WHERE e.name = '${effect}'
-               GROUP BY a.id`
-           })
-        }
-        let query = [...trigger_query,...target_query,...effect_query].join(" INTERSECT ")
-        
-        const result2:any[] = await prisma.$queryRawUnsafe(query)
-        const abilitiesIds = result2.map((item) => item.id)
-        let result = await prisma.ability.findMany({where: {id: {in: abilitiesIds}},
-            include: {
-                pokemonsAbilities: {
-                    select: {
-                        pokemon: true
-                    }
-                },
+            let where:any = {}
+            if(mechanic){
+                let trigger_query:string[]=[], target_query:string[]=[], effect_query:string[]=[]
+                if(mechanic.triggers != undefined && mechanic.triggers.length > 0){
+                    trigger_query = mechanic.triggers.map((trigger) => {
+                        return `SELECT a.id from "MechanicsTriggers" me
+                        INNER JOIN "Trigger" t  ON t.id  = me."triggerId"  
+                        INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
+                        INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
+                        WHERE t.name = '${trigger}'
+                        GROUP BY a.id`
+                    })
+                }
+                if(mechanic.targets != undefined && mechanic.targets.length > 0){
+                    target_query = mechanic.targets.map((target) => {
+                    return `SELECT a.id from "MechanicsTargets" me
+                    INNER JOIN "Target" t  ON e.id  = me."targetId"  
+                    INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
+                    INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
+                    WHERE t.name = '${target}'
+                    GROUP BY a.id`
+                })
+                }
+                if(mechanic.effects != undefined && mechanic.effects.length > 0){
+                    effect_query = mechanic.effects.map((effect) => {
+                    return `SELECT a.id from "MechanicsEffects" me
+                    INNER JOIN "Effect" e  ON e.id  = me."effectId"  
+                    INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
+                    INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
+                    WHERE e.name = '${effect}'
+                    GROUP BY a.id`
+                })
+                }
+                let query = [...trigger_query,...target_query,...effect_query].join(" INTERSECT ")
+                const result2:any[] = await prisma.$queryRawUnsafe(query)
+                const abilitiesIds = result2.map((item) => item.id)
+                where = {id: {in: abilitiesIds}}
             }
+        if(generation) where["generation"]= {lte: generation}
+        if(name) where["name"] = {in: name}
+        if(id) where["id"] = {in: id}
+    
+        let result = await prisma.ability.findMany({
+            where: where,
+            include: {pokemonsAbilities: {select: {pokemon: true}},}
         })
             
         prisma.$disconnect
@@ -194,7 +197,9 @@ export class AbilityController{
                 await prisma.mechanic.create({data:data})
 
             })
-          )
+        )
+        //TODO: add moves relations
+        //TODO: add mechanics into the JSON backup
         prisma.$disconnect
         return true
     }

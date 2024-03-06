@@ -1104,7 +1104,7 @@
                 "effect": [
                     "change-move-type",
                     "move-type-water"
-                ],
+                ]
 
             }
         ],

@@ -7,7 +7,7 @@ import { VersionGroupController } from './Controller/versionGroup'
 import { pokemonAbility } from './Controller/pokemonAbility'
 import pokemonController from './Controller/pokemon'
 import { MechanicController } from './Controller/mechanic'
-const ability_old = require("../data_raw/abilities.json")
+const ability_old = require("../backup/abilities.json")
 
 const prisma = new PrismaClient()
 let populatePokemon = async () => {
@@ -180,14 +180,14 @@ let populateMoves = async () => {
 
 }
 let testFindAbility = async () => {
-    AbilityController.findByMechanic({triggers:["full-hp","on-hit"],targets:[],effects:[]}).then((result:any) => {
-        result.map((ability:any) => {
-            console.log(ability)
-            ability.pokemonsAbilities.map((pokemonAbility:any) => {
-                console.log(pokemonAbility)
-            })
-        })
-    })
+    // AbilityController.findByMechanic({triggers:["full-hp","on-hit"],targets:[],effects:[]}).then((result:any) => {
+    //     result.map((ability:any) => {
+    //         console.log(ability)
+    //         ability.pokemonsAbilities.map((pokemonAbility:any) => {
+    //             console.log(pokemonAbility)
+    //         })
+    //     })
+    // })
 }
 let main = async () => {
     //await populateAbilities()
@@ -219,7 +219,15 @@ let main = async () => {
 //    let result = await pokemonController.getPokemon("suicune")
     //await VersionGroupController.update()
     // await pokemonController.update()
-     let data = await pokemonController.getMoves("suicune")
-     console.log(data[0])
+    // let mechanic={
+    //     triggers:["on-knock-out","on-hit"],
+    //     targets:["self-stats"],
+    //     effects:["stats-special-attack","power-up"]
+    // }
+    let data = await AbilityController.findByMechanic({
+        mechanic:{effects:["stats-special-attack","power-up"]}
+    })
+     //let data = await pokemonController.getMoves("suicune")
+     console.log(data)
 }
 main()
