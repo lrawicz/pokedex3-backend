@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { resolve } from 'path'
+import { toArabic } from 'typescript-roman-numbers-converter'
 const prisma = new PrismaClient()
 
 export class MoveController {
@@ -29,12 +30,12 @@ export class MoveController {
 
                                 contestEffectId = Number(data.contest_effect.url.match('\/[0-9]+\/')[0].replaceAll("/",""))
                             }
+                            
                             let moveToAdd ={
                                 ///
                                 id:data.id,
                                 name:data.name,
-                                generation: data.generation.name,
-    
+                                generation: (toArabic(data.generation.name.split("-")[1])||0),
                                 flavorText: flavor_text,
                                 effect: effect,
                                 power: data.power,
@@ -68,8 +69,8 @@ export class MoveController {
                             }
                             await prisma.move.upsert({
                                 where: {id: data.id},
-                                create: moveToAdd,
-                                update: moveToAdd
+                                update: moveToAdd,
+                                create: moveToAdd
                             })
                         })
                 }))

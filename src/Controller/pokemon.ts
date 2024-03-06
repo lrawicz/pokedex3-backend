@@ -14,7 +14,7 @@ export default  class pokemonController{
                     let abilityPokemon = data.abilities.map((ability:any) => {
                         return {
                             abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
-                            generation: "last",
+                            generation: 9999,
                             slot: ability.slot,
                             isHidden: ability.is_hidden 
                         }
@@ -24,7 +24,7 @@ export default  class pokemonController{
                         meta_abilities.abilities.map((ability:any) => {
                             abilityPokemon.push({
                                 abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
-                                generation: generation,
+                                generation: toArabic(generation.split("-")[1])||0,
                                 slot: ability.slot,
                                 isHidden: ability.is_hidden 
                             })
@@ -66,7 +66,7 @@ export default  class pokemonController{
                             habitat:specie.habitat?specie.habitat.name:null,
                             type1: data.types[0].type.name,
                             type2: data.types[1] ? data.types[1].type.name : null,
-                            generation: toArabic(specie.generation.name.split("-")[1])||0,
+                            generation: Number(toArabic(specie.generation.name.split("-")[1])||0),
                             hasGenderDifferences: specie.has_gender_differences,
                             abilities: {create: abilityPokemon},
                             movesLearns: {create: moveLearns}
@@ -88,7 +88,7 @@ export default  class pokemonController{
         return null
     }
 
-    static async getPokemon(request:number|string, generation:string="generation-i"):Promise<any>{
+    static async getPokemon(request:number|string, generation:number=100):Promise<any>{
         let pokemon:any;
         let where:any;
         where = isNaN(Number(request))? {name: String(request)}: {id: Number(request)};
@@ -104,51 +104,38 @@ export default  class pokemonController{
                 }}
             }
         })
-        let arabic_request = generation.toLowerCase() == "last"? 99999:toArabic(generation.toLowerCase().split("-")[1])||0
         pokemon.abilities = {
-            "slot-1": pokemon.abilities
+            "slot1": pokemon.abilities
                 .filter((ability:any) => ability.slot == 1)
-                .map((ability:any) => {
-                    ability.generation = ability.generation == "last" ?"generation-xxx":ability.generation
-                    ability.generation = toArabic(ability.generation.split("-")[1])||0
-                    return (ability)})
                 .sort((a:any,b:any) => {a.generation - b.generation})
                 .reduce((acumulado:any, ability:any) => {
                     if(!acumulado){
                         return ability
                     }else{
-                        return (arabic_request < ability.generation)?ability:acumulado
+                        console.log(generation, ability.generation)
+                        return (generation <= ability.generation)?ability:acumulado
                     }
                 },{}),
-            "slot-2": pokemon.abilities
+            "slot2": pokemon.abilities
                 .filter((ability:any) => ability.slot == 2)
-                .map((ability:any) => {
-                    ability.generation = ability.generation == "last" ?"generation-xxx":ability.generation
-                    ability.generation = toArabic(ability.generation.split("-")[1])||0
-                    return (ability)
-                }).sort((a:any,b:any) => {a.generation - b.generation})
+                .sort((a:any,b:any) => {a.generation - b.generation})
                 .reduce((acumulado:any, ability:any) => {
                     if(!acumulado){
                         return ability
                     }else{
-                        return (arabic_request < ability.generation)?ability:acumulado
+                        return (generation <= ability.generation)?ability:acumulado
                     }
                 },{}),
-            "slot-3": pokemon.abilities
-                    .filter((ability:any) => ability.slot == 3)
-                    .map((ability:any) => {
-                        ability.generation = ability.generation == "last" ?"generation-xxx":ability.generation
-                        ability.generation = toArabic(ability.generation.split("-")[1])||0
-                        return (ability)
-                    }).sort((a:any,b:any) => {
-                        a.generation - b.generation
-                    }).reduce((acumulado:any, ability:any) => {
-                        if(!acumulado){
-                            return ability
-                        }else{
-                            return (arabic_request < ability.generation)?ability:acumulado
-                        }
-                    },{})
+            "slot3": pokemon.abilities
+                .filter((ability:any) => ability.slot == 3)
+                .sort((a:any,b:any) => {a.generation - b.generation})
+                .reduce((acumulado:any, ability:any) => {
+                    if(!acumulado){
+                        return ability
+                    }else{
+                        return (generation <= ability.generation)?ability:acumulado
+                    }
+                },{}),
         }
         return pokemon
     }

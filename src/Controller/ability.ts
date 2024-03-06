@@ -191,24 +191,7 @@ export class AbilityController{
                     data = {...data, ...tmp}
                 }
 
-                let result = await prisma.mechanic.create({data:data})
-
-
-                /*let result = await prisma.mechanic.update({where: {id: abilityDB.id}, 
-                    data: {
-                        mechanics: {
-                            create: mechanics.map((mechanic) => {
-                                return {
-                        create: triggers.map((trigger) => ({trigger:{connect: {id: trigger.id}}}))
-
-                                    triggers: {connect:mechanic.triggers?.map((trigger) => {return {id: trigger}})},
-                                    targets: {connect: mechanic.targets?.map((target) => {return {id: target}})},
-                                    effects: {connect: mechanic.effects?.map((effect) => {return {id: effect}})}
-                                }
-                            })
-                        }
-                    }
-                })*/
+                await prisma.mechanic.create({data:data})
 
             })
           )

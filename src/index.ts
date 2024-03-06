@@ -6,6 +6,7 @@ import { MoveController } from './Controller/move'
 import { VersionGroupController } from './Controller/versionGroup'
 import { pokemonAbility } from './Controller/pokemonAbility'
 import pokemonController from './Controller/pokemon'
+import { MechanicController } from './Controller/mechanic'
 const ability_old = require("../data_raw/abilities.json")
 
 const prisma = new PrismaClient()
@@ -68,67 +69,6 @@ let populatePokemon = async () => {
 
 
     await prisma.$disconnect()
-}
-let populateAbilities = async () => {
-    await prisma.$connect()
-    //drop DB
-    
-    // import abilities.json
-    for(let key in ability_old){
-        let ability = await prisma.ability.findUnique({where: {id: ability_old[key].id}})
-        if(!ability){
-            ability = await prisma.ability.create({data: {
-                id: ability_old[key].id,
-                name: ability_old[key].name,
-                //flavor_text: ability_old[key].flavor_text,
-                generation: ability_old[key].generation,
-            }})
-        }
-        for (let index = 0; index < ability_old[key]["mechanics"].length; index++) {
-            let  mechanic_raw = ability_old[key]["mechanics"][index];
-            let triggers = []
-            for (let index = 0; index < mechanic_raw.trigger.length; index++) {
-                let trigger = await prisma.trigger.findUnique({where: {name: mechanic_raw.trigger[index]}})
-                if(!trigger){
-                    trigger = await prisma.trigger.create({data: {name: mechanic_raw.trigger[index]}})
-                }
-                triggers.push(trigger)
-            }
-            let targets = []
-            for (let index = 0; index < mechanic_raw.target.length; index++) {
-                let target = await prisma.target.findUnique({where: {name: mechanic_raw.target[index]}})
-                if(!target){
-                    target = await prisma.target.create({data: {name: mechanic_raw.target[index]}})
-                }
-                targets.push(target)
-            }
-
-            let effects = []
-            for (let index = 0; index < mechanic_raw.effect.length; index++) {
-                let effect = await prisma.effect.findUnique({where: {name: mechanic_raw.effect[index]}})
-                if(!effect){
-                    effect = await prisma.effect.create({data: {name: mechanic_raw.effect[index]}})
-                }
-                effects.push(effect)
-            }
-
-            let mechanic = await prisma.mechanic.create({
-                data:{
-                    abilityId:ability.id,
-                    triggers:{
-                        create: triggers.map((trigger) => ({trigger:{connect: {id: trigger.id}}}))
-                    },
-                    targets:{
-                        create: targets.map((target) => ({target:{connect: {id: target.id}}}))
-                    },
-                    effects:{
-                        create: effects.map((effect) => ({effect:{connect: {id: effect.id}}}))
-                    }
-                }
-            })
-        }
-    }
-    prisma.$disconnect
 }
 let find = async ({triggers=[],targets=[],effects=[]}:{triggers?:String[],targets?:String[],effects?:String[]}) => {
     await prisma.$connect()
@@ -196,7 +136,6 @@ let addStats = async () => {
     }
 }
 let populate = async () => {
-    await populateAbilities()
     await populatePokemon()
     console.log("FINISHED")
 }
@@ -288,6 +227,8 @@ let main = async () => {
     //await pokemonController.update()
 //    let result = await pokemonController.getPokemon("suicune")
     //await VersionGroupController.update()
-    await AbilityController.update()
+    //await pokemonController.update()
+    let poke = await pokemonController.getPokemon("suicune")
+    console.log(poke.abilities)
 }
 main()
