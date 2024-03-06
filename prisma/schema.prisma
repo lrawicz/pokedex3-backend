@@ -156,6 +156,7 @@ model move {
     metaStatChance Int?
 
     learnMoves LearnMove[]
+    move_moveGrups move_moveGrups[]
     //contestEffect @relation(fields: [contestEffectId], references: [id])
 }
 
@@ -178,4 +179,18 @@ model LearnMove{
   versionGroup versionGroup @relation(fields: [versionGroupId], references: [id])  
   move move @relation(fields: [moveId], references: [id])
   pokemon Pokemon @relation(fields: [pokemonId], references: [id],onDelete: Cascade) 
+}
+model moveGroups{
+  id Int @id
+  name String
+  generation Int
+  moveGrups move_moveGrups[]
+}
+model move_moveGrups{
+  @@id([moveId, moveGroupId])
+  moveId Int
+  moveGroupId Int
+
+  move move @relation(fields: [moveId], references: [id])
+  moveGroup moveGroups @relation(fields: [moveGroupId], references: [id])
 }
