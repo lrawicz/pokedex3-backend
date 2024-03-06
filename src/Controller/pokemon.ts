@@ -71,13 +71,11 @@ export default  class pokemonController{
                             abilities: {create: abilityPokemon},
                             movesLearns: {create: moveLearns}
                         }
-                    if(pokeInDb){
-                        await prisma.pokemon.update({where: {id: data.id}, data: dataToUpload})
-                        //update
-                    }else{
-                        await prisma.pokemon.create({data: dataToUpload})
-                        //create
-                    }
+                        await prisma.pokemon.upsert({
+                                where: {id: data.id},
+                                update: dataToUpload,
+                                create: dataToUpload
+                        })
                 })
             }))
             return (data)
