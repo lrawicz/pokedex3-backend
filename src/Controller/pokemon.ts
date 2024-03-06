@@ -108,34 +108,15 @@ export default  class pokemonController{
             "slot1": pokemon.abilities
                 .filter((ability:any) => ability.slot == 1)
                 .sort((a:any,b:any) => {a.generation - b.generation})
-                .reduce((acumulado:any, ability:any) => {
-                    if(!acumulado){
-                        return ability
-                    }else{
-                        console.log(generation, ability.generation)
-                        return (generation <= ability.generation)?ability:acumulado
-                    }
-                },{}),
+                .reduce((acumulado:any, ability:any) => (generation <= ability.generation)?ability:acumulado,{}),
             "slot2": pokemon.abilities
                 .filter((ability:any) => ability.slot == 2)
                 .sort((a:any,b:any) => {a.generation - b.generation})
-                .reduce((acumulado:any, ability:any) => {
-                    if(!acumulado){
-                        return ability
-                    }else{
-                        return (generation <= ability.generation)?ability:acumulado
-                    }
-                },{}),
+                .reduce((acumulado:any, ability:any) => (generation <= ability.generation)?ability:acumulado,{}),
             "slot3": pokemon.abilities
                 .filter((ability:any) => ability.slot == 3)
                 .sort((a:any,b:any) => {a.generation - b.generation})
-                .reduce((acumulado:any, ability:any) => {
-                    if(!acumulado){
-                        return ability
-                    }else{
-                        return (generation <= ability.generation)?ability:acumulado
-                    }
-                },{}),
+                .reduce((acumulado:any, ability:any) => (generation <= ability.generation)?ability:acumulado,{}),
         }
         return pokemon
     }
