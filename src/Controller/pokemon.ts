@@ -88,10 +88,10 @@ export default  class pokemonController{
         return null
     }
 
-    static async getPokemon(request:number|string, generation:number=100):Promise<any>{
+    static async getPokemon(pokemonRequest:number|string, generation:number=100):Promise<any>{
         let pokemon:any;
         let where:any;
-        where = isNaN(Number(request))? {name: String(request)}: {id: Number(request)};
+        where = isNaN(Number(pokemonRequest))? {name: String(pokemonRequest)}: {id: Number(pokemonRequest)};
 
         pokemon = await prisma.pokemon.findUnique({
             where: where, 
@@ -120,9 +120,20 @@ export default  class pokemonController{
         }
         return pokemon
     }
-    static async getMoves(pokemonId:number,generation:string){
+    static async getMoves(pokemonRequest:number|string,generation:number=100){
+        let pokemon:any;
+        let where:any;
+        where = isNaN(Number(pokemonRequest))? {name: String(pokemonRequest)}: {id: Number(pokemonRequest)};
+
+        pokemon = await prisma.pokemon.findUnique({where: where, })
         let moves = await prisma.learnMove.findMany(
-            {where: {pokemonId: pokemonId}}
+            {
+                where: {pokemonId: pokemon.id, },
+                include: {
+                    versionGroup:{select: {generation:true, name:true}},
+                    move:{select: {name:true, id:true, power:true,type:true,damageClass:true}},
+                }
+            }
         )
         return moves
     }

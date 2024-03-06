@@ -227,8 +227,8 @@ let main = async () => {
     //await pokemonController.update()
 //    let result = await pokemonController.getPokemon("suicune")
     //await VersionGroupController.update()
-    //await pokemonController.update()
-    let poke = await pokemonController.getPokemon("suicune")
-    console.log(poke.abilities)
+    // await pokemonController.update()
+     let data = await pokemonController.getMoves("suicune")
+     console.log(data[0])
 }
 main()
