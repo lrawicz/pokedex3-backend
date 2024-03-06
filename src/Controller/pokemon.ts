@@ -66,7 +66,7 @@ export default  class pokemonController{
                             habitat:specie.habitat?specie.habitat.name:null,
                             type1: data.types[0].type.name,
                             type2: data.types[1] ? data.types[1].type.name : null,
-                            generation: specie.generation.name,
+                            generation: toArabic(specie.generation.name.split("-")[1])||0,
                             hasGenderDifferences: specie.has_gender_differences,
                             abilities: {create: abilityPokemon},
                             movesLearns: {create: moveLearns}
@@ -93,20 +93,17 @@ export default  class pokemonController{
         let where:any;
         where = isNaN(Number(request))? {name: String(request)}: {id: Number(request)};
 
-        pokemon = await prisma.pokemon.findUnique({where: where, include: {abilities: {
-            select: {
-                ability: {
-                    select: {
-                        name: true,
-                        id: true
-                    }
-                },
-                generation: true,
-                slot: true,
-                isHidden: true
+        pokemon = await prisma.pokemon.findUnique({
+            where: where, 
+            include: {
+                abilities: {select: {
+                    ability: {select: {name: true,id: true}},
+                    generation: true,
+                    slot: true,
+                    isHidden: true
+                }}
             }
-        
-        }}})
+        })
         let arabic_request = generation.toLowerCase() == "last"? 99999:toArabic(generation.toLowerCase().split("-")[1])||0
         pokemon.abilities = {
             "slot-1": pokemon.abilities
@@ -153,7 +150,12 @@ export default  class pokemonController{
                         }
                     },{})
         }
-        console.log(pokemon.abilities["slot-1"])
         return pokemon
+    }
+    static async getMoves(pokemonId:number,generation:string){
+        let moves = await prisma.learnMove.findMany(
+            {where: {pokemonId: pokemonId}}
+        )
+        return moves
     }
 }

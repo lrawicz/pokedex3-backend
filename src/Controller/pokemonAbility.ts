@@ -14,7 +14,7 @@ export class pokemonAbility {
                                 await prisma.pokemonAbility.create({data: {
                                     pokemonId: data.id,
                                     abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
-                                    generation: "last"
+                                    generation: 0
                                 }});
                                 // await prisma.pokemon.update({where: {id: data.id}, data: {
                                 //     abilities: {connect: {

@@ -20,7 +20,7 @@ model Pokemon {
   specie    String?
   type1     String? 
   type2    String?
-  generation String
+  generation Int
   hp      Int
   attack  Int
   defense Int
@@ -49,7 +49,7 @@ model Ability {
   id         Int                 @id @default(autoincrement())
   name      String @unique
   flavor_text String
-  generation String
+  generation Int
   new Boolean? @default(false)
   mechanics  Mechanic[]
   is_main_series Boolean @default(true)
@@ -114,13 +114,13 @@ model PokemonAbility {
   ability    Ability @relation(fields: [abilityId], references: [id])
   slot       Int?
   isHidden  Boolean?
-  generation String
+  generation Int
 }
 
 model move {
     id Int @id //id: data.id
     name String //name: data.name,
-    generation String //generation: data.generation.name,
+    generation Int //generation: data.generation.name,
 
     flavorText String?
     effect String?
@@ -160,7 +160,7 @@ model move {
 model versionGroup{
   id Int @id
   name String
-  generation String
+  generation Int
   order Int
   versions String[]
   leanMoves LearnMove[]

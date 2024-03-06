@@ -288,6 +288,6 @@ let main = async () => {
     //await pokemonController.update()
 //    let result = await pokemonController.getPokemon("suicune")
     //await VersionGroupController.update()
-    await MoveController.update()
+    await pokemonController.update()
 }
 main()

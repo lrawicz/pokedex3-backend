@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
+import {toArabic} from "typescript-roman-numbers-converter"
 
 export class VersionGroupController {
     static async update(url:string =`https://pokeapi.co/api/v2/version-group` ):Promise <null> {
@@ -10,15 +11,19 @@ export class VersionGroupController {
                 data.results.map((versionGroup:any) => {
                     fetch(versionGroup.url)
                         .then((response) => response.json())
-                        .then((data_versionGroup) => {
-                            console.log(data_versionGroup)
-                            return prisma.versionGroup.create({data: {
+                        .then(async (data_versionGroup) => {
+                            let dataToUpload ={
                                 id: data_versionGroup.id,
                                 name: data_versionGroup.name,
-                                generation: data_versionGroup.generation.name,
+                                generation: toArabic(data_versionGroup.generation.name.split("-")[1])||0,
                                 versions: data_versionGroup.versions.map((version:any) => version.name),
                                 order: data_versionGroup.order
-                            }})
+                            }
+                            await prisma.versionGroup.upsert({
+                                where: {id: dataToUpload.id},
+                                update: dataToUpload,
+                                create: dataToUpload
+                            })
 
                         })
                 })
