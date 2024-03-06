@@ -104,15 +104,6 @@ let find = async ({triggers=[],targets=[],effects=[]}:{triggers?:String[],target
     prisma.$disconnect
     console.log(result)
 }
-let showAbility = async (id:number) => {
-    await prisma.$connect()
-    let ability = await prisma.ability.findUnique(
-        {where: {id: id},
-        include: {mechanics: {include: {triggers: true, targets: true, effects: true}}}}
-    )
-    console.log(ability)
-    prisma.$disconnect
-}
 let addStats = async () => {
     // load files in pokemons folder
     const fs = require('fs')
