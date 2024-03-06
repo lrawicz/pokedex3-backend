@@ -89,6 +89,7 @@ export default  class pokemonController{
     }
 
     static async searchPokemon({options, generation}:{options:any, generation:any}){
+        //TODO: implement searchPokemon
         let pokemons = await prisma.pokemon.findMany({select: {id: true, name: true}})
         return pokemons
     }
@@ -110,6 +111,8 @@ export default  class pokemonController{
                 }}
             }
         })
+
+        // TODO: implement this logic in a select query
         pokemon.abilities = {
             "slot1": pokemon.abilities
                 .filter((ability:any) => ability.slot == 1)
