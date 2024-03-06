@@ -48,7 +48,9 @@ model Pokemon {
 model Ability {
   id         Int                 @id @default(autoincrement())
   name      String @unique
-  flavor_text String
+  effect String?
+  shortEffect String?
+  flavorText String?
   generation Int
   new Boolean? @default(false)
   mechanics  Mechanic[]

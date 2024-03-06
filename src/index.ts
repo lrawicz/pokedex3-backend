@@ -80,7 +80,7 @@ let populateAbilities = async () => {
             ability = await prisma.ability.create({data: {
                 id: ability_old[key].id,
                 name: ability_old[key].name,
-                flavor_text: ability_old[key].flavor_text,
+                //flavor_text: ability_old[key].flavor_text,
                 generation: ability_old[key].generation,
             }})
         }
@@ -288,6 +288,6 @@ let main = async () => {
     //await pokemonController.update()
 //    let result = await pokemonController.getPokemon("suicune")
     //await VersionGroupController.update()
-    await pokemonController.update()
+    await AbilityController.update()
 }
 main()

@@ -1,4 +1,5 @@
 import { Ability, PrismaClient } from '@prisma/client'
+import { toArabic } from 'typescript-roman-numbers-converter'
 const prisma = new PrismaClient()
 
 type mechanic = {
@@ -64,40 +65,52 @@ export class AbilityController{
         fetch(url)
             .then((response) => response.json())
             .then((data) => {
-                data.results.map((ability:any) => {
-                    fetch(ability.url)
-                        .then((response) => response.json())
-                        .then(async (data_ability) => {
-                            let abilityDB = await prisma.ability.findUnique({where: {id: data_ability.id}})
-                            return ({json: data_ability, db:abilityDB})
-                        })
-                        .then((data) => {
-                            if(!data.db){
-                                console.log("create ability: "+data.json.name)
-                                console.log(data.json.effect_entries)
-                                let flavor_text:string = ""
-                                if(data.json.effect_entries){
-                                    let tmp = data.json.effect_entries.filter((item:any)=>item.language=="en")
-                                    if (tmp.length > 0){
-                                        flavor_text = tmp[0].flavor_text.replaceAll("\n"," ")
+                Promise.all(
+                    data.results.map((ability:any) => {
+                        fetch(ability.url)
+                            .then((response) => response.json())
+                            .then(async(data) => {
+                                    let effect:string|null = null
+                                    let short_effect:string|null = null
+                                    let flavor_text:string|null = null
+                                    if(data.effect_entries){
+                                        let tmp = data.effect_entries.filter((item:any)=>item.language.name=="en")
+                                        if (tmp.length > 0){
+                                            effect = tmp[0].effect.replaceAll("\n"," ")
+                                            short_effect =tmp[0].short_effect.replaceAll("\n"," ")
+                                        }
                                     }
-                                }
-                                return prisma.ability.create({
-                                    data: {
-                                        id: data.json.id,
-                                        name: data.json.name,
+                                    if(data.flavor_text_entries){
+                                        let tmp = data.flavor_text_entries.filter((item:any)=>item.language.name=="en")
+                                        if (tmp.length > 0){
+                                            flavor_text = tmp[0].flavor_text.replaceAll("\n"," ")
+                                        }
+                                    }
+                                    let dataToUpload:any = {
+                                        id: data.id,
+                                        name: data.name,
                                         new: true,
-                                        is_main_series: data.json.is_main_series,
-                                        generation: data.json.generation.name,
-                                        flavor_text: flavor_text
+                                        is_main_series: data.is_main_series,
+                                        generation: toArabic(data.generation.name.split("-")[1]),
                                     }
-                                })
-                            }else{
-                                return null
-                            }
-                        }).then((data) => {
-                        })
-                })
+                                    
+                                    if(effect){
+                                        dataToUpload["effect"] = effect
+                                        dataToUpload["shortEffect"] = short_effect
+                                    }
+                                    if(flavor_text){
+                                        dataToUpload["flavorText"] = flavor_text
+                                    }
+
+                                    await prisma.ability.upsert({
+                                        where: {id: dataToUpload.id},
+                                        update: dataToUpload,
+                                        create: {...dataToUpload,new:true}
+                                    })
+                                   
+                            })
+                    })
+                )
                 return data
             }).then((data) => {
                 if(data.next){
