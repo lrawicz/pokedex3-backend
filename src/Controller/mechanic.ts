@@ -9,7 +9,7 @@ export class MechanicController {
   }
   public static async update() {
     await prisma.$connect()
-    let ability_old = require("../../data_raw/abilities.json")
+    let ability_old = require("../../backup/abilities.json")
     //drop DB
     
     // import abilities.json
