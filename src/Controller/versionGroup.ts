@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 export class VersionGroupController {
-    static async uploadDescriptions(url:string =`https://pokeapi.co/api/v2/version-group` ):Promise <null> {
+    static async update(url:string =`https://pokeapi.co/api/v2/version-group` ):Promise <null> {
         await prisma.$connect()
         fetch(url)
             .then((response) => response.json())
@@ -22,10 +22,11 @@ export class VersionGroupController {
 
                         })
                 })
+                
                 return data
             }).then((data) => {
                 if(data.next){
-                    this.uploadDescriptions(data.next)
+                    this.update(data.next)
                 }
             })
 

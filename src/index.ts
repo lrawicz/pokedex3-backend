@@ -286,7 +286,8 @@ let main = async () => {
     //
     //console.log(await AbilityController.abilitiesToFix())
     //await pokemonController.update()
-    let result = await pokemonController.getPokemon("suicune")
-    console.log(result)
+//    let result = await pokemonController.getPokemon("suicune")
+    //await VersionGroupController.update()
+    await MoveController.update()
 }
 main()

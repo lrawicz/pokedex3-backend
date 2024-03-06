@@ -118,33 +118,43 @@ model PokemonAbility {
 }
 
 model move {
-    id Int @id
-    name String
-    flavor_text String?
-    effect String
-    power Int?
-    priority Int
-    accuracy Int?
-    type String
-    damage_class String
-    target String
-    pp Int
-    stat_changes Json 
-    effect_chance Int?
-    meta_ailment String?
-    meta_ailment_chance Int?
-    meta_category String?
-    meta_crit_rate Int?
-    meta_drain Int?
-    meta_flinch_chance Int?
-    meta_healing Int?
-    meta_max_hits Int?
-    meta_max_turns Int?
-    meta_min_hits Int?
-    meta_min_turns Int?
-    meta_stat_chance Int?
-    generation String
+    id Int @id //id: data.id
+    name String //name: data.name,
+    generation String //generation: data.generation.name,
+
+    flavorText String?
+    effect String?
+    power Int? //power: data.power,
+    priority Int //priority: data.priority,
+    accuracy Int? //accurrency: data.accuracy,
+    type String //type: data.type.name,
+    damageClass String //damageClass: data.damage_class.name,
+    target String //target: data.target.name,
+    pp Int? //pp: data.pp,
+    statChanges Json  //statChanges: data.stat_changes,
+    pastValues Json //pastValues: data.past_values,
+    effectChance Int? //effectChance: data.effect_chance,
+    effectEntries String? // data.effect_entries.filter((item:any) => {item.language.name == "en"})[0].effect,  
+    shortEffect String? //:data.effect_entries.filter((item:any) => {item.language.name == "en"})[0].short_effect,  
+    effectChanges Json
+    contestCombo Json
+    contestEffectId Int?
+    contestType String?
+    metaAilment String?
+    metaAilmentChance Int?
+    metaCategory String?
+    metaCritRate Int?
+    metaDrain Int?
+    metaFlinchChance Int?
+    metaHealing Int?
+    metaMaxHits Int?
+    metaMaxTurns Int?
+    metaMinHits Int?
+    metaMinTurns Int?
+    metaStatChance Int?
+
     learnMoves LearnMove[]
+    //contestEffect @relation(fields: [contestEffectId], references: [id])
 }
 
 model versionGroup{
@@ -156,10 +166,10 @@ model versionGroup{
   leanMoves LearnMove[]
 }
 model LearnMove{
-  id Int @id
+  id Int @id @default(autoincrement())
   pokemonId Int
   moveId Int
-  method String[]
+  method String
   versionGroupId Int
   level Int
 

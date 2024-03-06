@@ -30,7 +30,18 @@ export default  class pokemonController{
                             })
                         })
                     })
-                    specie.has_gender_differences
+                    let moveLearns:any[] = []
+                    data.moves.map((item:any) => {
+                        let moveId = item.move.url.match("/[0-9]+/")[0].replaceAll("/","")
+                        item.version_group_details.map((version:any) => {
+                            moveLearns.push({
+                                moveId: Number(moveId),
+                                method: version.move_learn_method.name,
+                                versionGroupId: Number(version.version_group.url.match("/[0-9]+/")[0].replaceAll("/","")),
+                                level: version.level_learned_at
+                            })
+                        })
+                    })
                     let pokeInDb = await prisma.pokemon.findUnique({where: {id: data.id}})
                         let dataToUpload = {
                             id:data.id,
@@ -58,6 +69,7 @@ export default  class pokemonController{
                             generation: specie.generation.name,
                             hasGenderDifferences: specie.has_gender_differences,
                             abilities: {create: abilityPokemon},
+                            movesLearns: {create: moveLearns}
                         }
                     if(pokeInDb){
                         await prisma.pokemon.update({where: {id: data.id}, data: dataToUpload})
