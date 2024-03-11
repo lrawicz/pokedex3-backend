@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 //let roman = require('roman-numbers')
 import {toArabic} from "typescript-roman-numbers-converter"
+import { Request, Response } from 'express'
 
 const prisma = new PrismaClient()
 export default  class pokemonController{
@@ -91,6 +92,8 @@ export default  class pokemonController{
     static async searchPokemon({options, generation}:{options:any, generation:any}){
         //TODO: implement searchPokemon
         let pokemons = await prisma.pokemon.findMany({select: {id: true, name: true}})
+        
+
         return pokemons
     }
     static async getPokemonbyId(
@@ -147,5 +150,24 @@ export default  class pokemonController{
             }
         )
         return moves
+    }
+    static async getAllTypes(req: Request, res: Response){
+        let types = await prisma.pokemon.findMany({select: {type1:true }, distinct: ["type1"]})
+        types = types.map((type:any) => type.type1)
+        res.json(types)
+    }
+    static async getAllPokemons(req: Request, res: Response){
+        let where ={}
+        if(typeof req.query.abilities =="string"){
+            let Qabilities = JSON.parse(req.query.abilities)
+            if(Qabilities){
+                let abilities:number[] = Qabilities.map((ability:any) => Number(ability))
+                where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
+
+            }
+        }
+        let pokemons = await prisma.pokemon.findMany(
+            {select: {id:true, name:true}, where: where})
+        res.json(pokemons)
     }
 }

@@ -80,4 +80,28 @@ export class MoveController {
             })
         return null
     }
+    static async getAllNames(req: any, res: any) {
+        await prisma.$connect()
+        const result = await prisma.move.findMany({select: {id:true,name:true}})
+        await prisma.$disconnect()
+        return res.json(result)
+    }
+    static async getDamageClass(req: any, res: any) {
+        await prisma.$connect()
+        const result = await prisma.move.findMany({select: {damageClass:true},distinct: ['damageClass']})
+        await prisma.$disconnect()
+        return res.json(result.map((item:any) => item.damageClass))
+    }
+    static async getTargetTypes(req: any, res: any) {
+        await prisma.$connect()
+        const result = await prisma.move.findMany({select: {target:true},distinct: ['target']})
+        await prisma.$disconnect()
+        return res.json(result.map((item:any) => item.target))
+    }
+    static async getAilments(req: any, res: any) {
+        await prisma.$connect()
+        const result = await prisma.move.findMany({select: {metaAilment:true},distinct: ['metaAilment']})
+        await prisma.$disconnect()
+        return res.json(result.map((item:any) => item.metaAilment))
+    }
 }

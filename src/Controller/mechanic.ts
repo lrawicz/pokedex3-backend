@@ -1,6 +1,7 @@
-import { Ability, PrismaClient } from '@prisma/client'
+import { Ability, PrismaClient, Trigger, Target, Effect } from '@prisma/client'
 import { toArabic } from 'typescript-roman-numbers-converter'
 const prisma = new PrismaClient()
+import { Request, Response } from 'express'
 export class MechanicController {
     
 
@@ -14,15 +15,15 @@ export class MechanicController {
     
     // import abilities.json
     for(let key in ability_old){
-        let ability = await prisma.ability.findUnique({where: {id: ability_old[key].id}})
-        if(!ability){
-            ability = await prisma.ability.create({data: {
-                id: ability_old[key].id,
-                name: ability_old[key].name,
-                //flavor_text: ability_old[key].flavor_text,
-                generation: ability_old[key].generation,
-            }})
-        }
+        //"related_moves"
+        //TODO: test 
+        let dataToUpload: any = {}
+
+        let ability = await prisma.ability.upsert({
+            where: {id: ability_old[key].id},
+            update: dataToUpload,
+            create: dataToUpload
+        })
         for (let index = 0; index < ability_old[key]["mechanics"].length; index++) {
             let  mechanic_raw = ability_old[key]["mechanics"][index];
             let triggers = []
@@ -68,5 +69,18 @@ export class MechanicController {
         }
     }
     prisma.$disconnect
+    }
+ public static async getTriggers   (req: Request, res: Response)  {
+        const result:Trigger[] = await prisma.trigger.findMany()
+        return res.json(result)
+    }
+public static async getTargets   (req: Request, res: Response)  {
+    const result:Target[] = await prisma.target.findMany()
+    return res.json(result)
+}
+public static async getEffects   (req: Request, res: Response)  {
+    const result:Effect[] = await prisma.effect.findMany()
+    //return res.json(triggers)
+    return res.json(result)
 }
 }   
