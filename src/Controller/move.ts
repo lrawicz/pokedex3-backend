@@ -80,9 +80,9 @@ export class MoveController {
             })
         return null
     }
-    static async getAllNames(req: any, res: any) {
+    static async getAll(req: any, res: any) {
         await prisma.$connect()
-        const result = await prisma.move.findMany({select: {id:true,name:true}})
+        const result = await prisma.move.findMany()
         await prisma.$disconnect()
         return res.json(result)
     }

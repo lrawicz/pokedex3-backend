@@ -16,7 +16,7 @@ app.get('/triggers', MechanicController.getTriggers);
 app.get('/targets',  MechanicController.getTargets);
 app.get('/effects', MechanicController.getEffects);
 
-app.get('/moves/getAllNames', MoveController.getAllNames);
+app.get('/moves', MoveController.getAll);
 app.get('/moves/getDamageClass', MoveController.getDamageClass);
 app.get('/moves/getTargetTypes', MoveController.getTargetTypes);
 app.get('/moves/getAilments', MoveController.getAilments);
