@@ -44,7 +44,7 @@ export default  class pokemonController{
                         })
                     })
                     let pokeInDb = await prisma.pokemon.findUnique({where: {id: data.id}})
-                        let dataToUpload = {
+                        let dataToCreate:any = {
                             id:data.id,
                             name: data.name,
                             height: data.height,
@@ -72,11 +72,13 @@ export default  class pokemonController{
                             abilities: {create: abilityPokemon},
                             movesLearns: {create: moveLearns}
                         }
+                        let dataToUpload = { ...dataToCreate };
+                        delete dataToUpload.generation
                         await prisma.pokemon.upsert({
-                                where: {id: data.id},
-                                update: dataToUpload,
-                                create: dataToUpload
-                        })
+                            where: { id: data.id },
+                            update: dataToUpload,
+                            create: dataToCreate,
+                        });
                 })
             }))
             return (data)
