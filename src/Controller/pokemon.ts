@@ -157,16 +157,31 @@ export default  class pokemonController{
     }
     static async getAllPokemons(req: Request, res: Response){
         let where ={}
-        if(typeof req.query.abilities =="string"){
-            let Qabilities = JSON.parse(req.query.abilities)
-            if(Qabilities){
-                let abilities:number[] = Qabilities.map((ability:any) => Number(ability))
-                where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
-
-            }
+        let Qfilter:any
+        if(typeof req.query.filter =="string"){
+            Qfilter = JSON.parse(req.query.filter)
         }
-        let pokemons = await prisma.pokemon.findMany(
-            {select: {id:true, name:true}, where: where})
+            if(Qfilter){
+                if(Qfilter.abilities){
+                    let abilities:number[] = Qfilter.abilities.map((ability:any) => Number(ability))
+                    where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
+                }
+            }
+            where = {...where, generation:{
+                lte: isNaN(Number(Qfilter.generation))?9999:Number(Qfilter.generation)
+            }}
+            
+        
+        let pokemons:any = await prisma.pokemon.findMany(
+            {select: {id:true, name:true}, where: where, orderBy: {id: "asc"}})
+        pokemons = await Promise.all(pokemons.map(async(pokemon:any) => {
+            return await pokemonController.getPokemonbyId({pokemonRequest:pokemon.id,generation: Qfilter.generation})
+        }))
+        pokemons = pokemons.filter((pokemon:any) => 
+            ( Qfilter.abilities.includes(pokemon.abilities.slot1?.ability?.id||-1)) ||
+            ( Qfilter.abilities.includes(pokemon.abilities.slot2?.ability?.id||-1)) ||
+            ( Qfilter.abilities.includes(pokemon.abilities.slot3?.ability?.id||-1)) 
+        )
         res.json(pokemons)
     }
 }
