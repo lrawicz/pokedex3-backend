@@ -23,6 +23,7 @@ app.get('/moves/getAilments', MoveController.getAilments);
 
 app.get('/abilities',AbilityController.getAbilities);
 app.get('/pokemon/types',pokemonController.getAllTypes);
+app.get('/pokemons',pokemonController.getAllPokemons);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
