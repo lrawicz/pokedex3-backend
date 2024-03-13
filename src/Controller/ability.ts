@@ -66,7 +66,7 @@ export class AbilityController{
         let filter = req.query.filter 
         if(filter == undefined){
             prisma.$connect
-            return res.json(await prisma.ability.findMany({orderBy: {name: "asc"}}))
+            return res.json(await prisma.ability.findMany({where:{is_main_series: true},orderBy: {name: "asc"}}))
         }
         filter.name? delete filter.name: null
         return res.json(await AbilityController.findByMechanic({mechanic:JSON.parse(filter)}))
