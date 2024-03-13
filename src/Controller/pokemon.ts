@@ -97,8 +97,7 @@ export default  class pokemonController{
         return pokemons
     }
     static async getPokemonbyId(
-        {pokemonRequest=0, generation=9999}:
-        {pokemonRequest:number|string, generation:number}):Promise<any>{
+        {pokemonRequest=0, generation=9999}:{pokemonRequest:number|string, generation:number}):Promise<any>{
         let pokemon:any;
         let where:any;
         where = isNaN(Number(pokemonRequest))? {name: String(pokemonRequest)}: {id: Number(pokemonRequest)};
