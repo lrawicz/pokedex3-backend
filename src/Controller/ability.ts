@@ -46,7 +46,6 @@ export class AbilityController{
                     GROUP BY a.id`
                 })
                 }
-                console.log(effect_query)
                 let query = [...trigger_query,...target_query,...effect_query].join(" INTERSECT ")
                 const result2:any[] = await prisma.$queryRawUnsafe(query)
                 const abilitiesIds = result2.map((item) => item.id)
@@ -55,7 +54,6 @@ export class AbilityController{
         if(generation) where["generation"]= {lte: generation}
         if(name) where["name"] = {in: name}
         //if(id) where["id"] = {in: id}
-        console.log(where)
         let result = await prisma.ability.findMany({
             where: where,
             include: {pokemonsAbilities: {select: {pokemon: true}},}
@@ -71,7 +69,6 @@ export class AbilityController{
             return res.json(await prisma.ability.findMany({orderBy: {name: "asc"}}))
         }
         filter.name? delete filter.name: null
-        console.log(filter)
         return res.json(await AbilityController.findByMechanic({mechanic:JSON.parse(filter)}))
     }
     static async update(url:string = "https://pokeapi.co/api/v2/ability"):Promise <null>{
