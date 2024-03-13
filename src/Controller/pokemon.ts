@@ -180,7 +180,6 @@ export default  class pokemonController{
         res.json(types)
     }
     static async getAllPokemons(req: Request, res: Response){
-        let time1 = Date.now()
         let where ={}
         let method = 1 // 1 is the fastest way to do it
         let Qfilter:any
@@ -218,8 +217,6 @@ export default  class pokemonController{
                 ( Qfilter.abilities.includes(pokemon.abilities.slot3?.ability?.id||-1)) 
             )
         }
-        let time2 = Date.now()
-        console.log("time:",time2-time1)
         res.json(pokemons)
     }
 }
