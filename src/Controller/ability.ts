@@ -7,10 +7,15 @@ type mechanic = {
     targets?: String[],
     effects?: String[]
 }
+type mechanicId = {
+    triggers?: Number[],
+    targets?: Number[],
+    effects?: Number[]
+}
 export class AbilityController{
     
     static async findByMechanic({mechanic,generation,name,id}:
-        {mechanic?:mechanic,generation?:number,name?:string[],id?:number[]}):
+        {mechanic?:mechanicId,generation?:number,name?:string[],id?:number[]}):
         Promise <any[]> {
         await prisma.$connect()
             let where:any = {}
@@ -18,32 +23,26 @@ export class AbilityController{
                 let trigger_query:string[]=[], target_query:string[]=[], effect_query:string[]=[]
                 if(mechanic.triggers != undefined && mechanic.triggers.length > 0){
                     trigger_query = mechanic.triggers.map((trigger) => {
-                        return `SELECT a.id from "MechanicsTriggers" me
-                        INNER JOIN "Trigger" t  ON t.id  = me."triggerId"  
+                        return `SELECT m."abilityId" as id from "MechanicsTriggers" me
                         INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                        INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
-                        WHERE t.name = '${trigger}'
-                        GROUP BY a.id`
+                        WHERE me."triggerId" = ${trigger}
+                        GROUP BY m."abilityId"`
                     })
                 }
                 if(mechanic.targets != undefined && mechanic.targets.length > 0){
                     target_query = mechanic.targets.map((target) => {
-                    return `SELECT a.id from "MechanicsTargets" me
-                    INNER JOIN "Target" t  ON t.id  = me."targetId"  
+                    return `SELECT m."abilityId" as id from "MechanicsTargets" me
                     INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                    INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
-                    WHERE t.name = '${target}'
-                    GROUP BY a.id`
+                    WHERE me."targetId"   = ${target}
+                    GROUP BY m."abilityId"`
                 })
                 }
                 if(mechanic.effects != undefined && mechanic.effects.length > 0){
                     effect_query = mechanic.effects.map((effect) => {
-                    return `SELECT a.id from "MechanicsEffects" me
-                    INNER JOIN "Effect" e  ON e.id  = me."effectId"  
+                    return `SELECT m."abilityId" as id  from "MechanicsEffects" me
                     INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                    INNER JOIN "Ability" a  ON m."abilityId"  = a.id  
-                    WHERE e.name = '${effect}'
-                    GROUP BY a.id`
+                    WHERE me."effectId"   = ${effect}
+                    GROUP BY m."abilityId"`
                 })
                 }
                 let query = [...trigger_query,...target_query,...effect_query].join(" INTERSECT ")

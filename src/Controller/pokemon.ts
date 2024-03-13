@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client"
 //let roman = require('roman-numbers')
 import {toArabic} from "typescript-roman-numbers-converter"
 import { Request, Response } from 'express'
+import { time } from "console"
 
 const prisma = new PrismaClient()
 export default  class pokemonController{
@@ -98,6 +99,27 @@ export default  class pokemonController{
 
         return pokemons
     }
+    static async findPokemonsByAbility({abilityId, generation}:{abilityId:number[], generation:number}){
+        let query =`SELECT "pokemonId","slot","generation" FROM (
+                        (SELECT * FROM "PokemonAbility" pa 
+                            WHERE pa."slot"= '1' 
+                            ${abilityId.length>0?'AND "abilityId" IN ('+abilityId.join(",")+')':''}
+                            AND pa."generation" >= $1)
+                        UNION
+                        (SELECT * FROM "PokemonAbility" pa 
+
+                            WHERE pa."slot"= '2' 
+                            ${abilityId.length>0?'AND "abilityId" IN ('+abilityId.join(",")+')':''}
+                            AND pa."generation" >= $1)
+                        UNION
+                        (SELECT * FROM "PokemonAbility" pa 
+                            WHERE pa."slot"= '3' 
+                            ${abilityId.length>0?'AND "abilityId" IN ('+abilityId.join(",")+')':''}
+                            AND pa."generation" >= $1)
+                    ) as t  GROUP BY "pokemonId", "slot", "generation"`
+        let result:any =  await prisma.$queryRawUnsafe(query=query,generation)
+        return result.map((data:any) => data.pokemonId)
+    }
     static async getPokemonbyId(
         {pokemonRequest=0, generation=9999}:{pokemonRequest:number|string, generation:number}):Promise<any>{
         let pokemon:any;
@@ -158,15 +180,25 @@ export default  class pokemonController{
         res.json(types)
     }
     static async getAllPokemons(req: Request, res: Response){
+        let time1 = Date.now()
         let where ={}
+        let method = 1 // 1 is the fastest way to do it
         let Qfilter:any
         if(typeof req.query.filter =="string"){
             Qfilter = JSON.parse(req.query.filter)
         }
             if(Qfilter){
                 if(Qfilter.abilities){
-                    let abilities:number[] = Qfilter.abilities.map((ability:any) => Number(ability))
-                    where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
+                    switch(method){
+                        case 1:
+                            let abilities:number[] = Qfilter.abilities.map((ability:any) => Number(ability))
+                            where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
+                            break;
+                        case 2:
+                            let pokemonsWithAbilities = await pokemonController.findPokemonsByAbility({abilityId:Qfilter.abilities, generation:Qfilter.generation})
+                            where = {...where, id:{in: pokemonsWithAbilities}}
+                            break;
+                    }
                 }
             }
             where = {...where, generation:{
@@ -179,11 +211,15 @@ export default  class pokemonController{
         pokemons = await Promise.all(pokemons.map(async(pokemon:any) => {
             return await pokemonController.getPokemonbyId({pokemonRequest:pokemon.id,generation: Qfilter.generation})
         }))
-        pokemons = pokemons.filter((pokemon:any) => 
-            ( Qfilter.abilities.includes(pokemon.abilities.slot1?.ability?.id||-1)) ||
-            ( Qfilter.abilities.includes(pokemon.abilities.slot2?.ability?.id||-1)) ||
-            ( Qfilter.abilities.includes(pokemon.abilities.slot3?.ability?.id||-1)) 
-        )
+        if(method==1){
+            pokemons = pokemons.filter((pokemon:any) => 
+                ( Qfilter.abilities.includes(pokemon.abilities.slot1?.ability?.id||-1)) ||
+                ( Qfilter.abilities.includes(pokemon.abilities.slot2?.ability?.id||-1)) ||
+                ( Qfilter.abilities.includes(pokemon.abilities.slot3?.ability?.id||-1)) 
+            )
+        }
+        let time2 = Date.now()
+        console.log("time:",time2-time1)
         res.json(pokemons)
     }
 }
