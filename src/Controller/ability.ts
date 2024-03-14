@@ -20,6 +20,7 @@ export class AbilityController{
         await prisma.$connect()
             let where:any = {}
             if(mechanic){
+                let allAbilities = `select id from "Ability" a`
                 let trigger_query:string[]=[], target_query:string[]=[], effect_query:string[]=[]
                 if(mechanic.triggers != undefined && mechanic.triggers.length > 0){
                     trigger_query = mechanic.triggers.map((trigger) => {
@@ -45,7 +46,7 @@ export class AbilityController{
                     GROUP BY m."abilityId"`
                 })
                 }
-                let query = [...trigger_query,...target_query,...effect_query].join(" INTERSECT ")
+                let query = [allAbilities,...trigger_query,...target_query,...effect_query].join(" INTERSECT ")
                 const result2:any[] = await prisma.$queryRawUnsafe(query)
                 const abilitiesIds = result2.map((item) => item.id)
                 where = {id: {in: abilitiesIds}}
