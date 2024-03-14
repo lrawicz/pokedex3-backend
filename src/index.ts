@@ -3,11 +3,14 @@ import { MechanicController } from './Controller/mechanic';
 import pokemonController from './Controller/pokemon';
 import { MoveController } from './Controller/move';
 import { AbilityController } from './Controller/ability';
+import morgan from 'morgan'
 
+const loggerMiddleware = morgan('dev'); 
 let port = process.env.PORT || 3300;
 const app = express();
 var cors = require('cors')
 app.use(cors());
+app.use(loggerMiddleware);
 // var corsOptions = {
 //     origin: '*',
 //     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
