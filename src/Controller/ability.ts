@@ -64,11 +64,10 @@ export class AbilityController{
     }
     static async getAbilities(req: any, res: any) {
         let filter = req.query.filter 
-        if(filter == undefined){
+        if(filter == undefined || filter == "{}"){
             prisma.$connect
             return res.json(await prisma.ability.findMany({where:{is_main_series: true},orderBy: {name: "asc"}}))
         }
-        filter.name? delete filter.name: null
         return res.json(await AbilityController.findByMechanic({mechanic:JSON.parse(filter)}))
     }
     static async update(url:string = "https://pokeapi.co/api/v2/ability"):Promise <null>{

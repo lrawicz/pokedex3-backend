@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client"
 //let roman = require('roman-numbers')
 import {toArabic} from "typescript-roman-numbers-converter"
 import { Request, Response } from 'express'
-import { time } from "console"
 
 const prisma = new PrismaClient()
 export default  class pokemonController{
@@ -211,11 +210,13 @@ export default  class pokemonController{
             return await pokemonController.getPokemonbyId({pokemonRequest:pokemon.id,generation: Qfilter.generation})
         }))
         if(method==1){
-            pokemons = pokemons.filter((pokemon:any) => 
-                ( Qfilter.abilities.includes(pokemon.abilities.slot1?.ability?.id||-1)) ||
-                ( Qfilter.abilities.includes(pokemon.abilities.slot2?.ability?.id||-1)) ||
-                ( Qfilter.abilities.includes(pokemon.abilities.slot3?.ability?.id||-1)) 
-            )
+            if (Qfilter.abilities){
+                pokemons = pokemons.filter((pokemon:any) => 
+                ( Qfilter.abilities?.includes(pokemon.abilities.slot1?.ability?.id||-1)) ||
+                ( Qfilter.abilities?.includes(pokemon.abilities.slot2?.ability?.id||-1)) ||
+                ( Qfilter.abilities?.includes(pokemon.abilities.slot3?.ability?.id||-1)) 
+                )
+            }
         }
         res.json(pokemons)
     }

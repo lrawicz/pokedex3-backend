@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { resolve } from 'path'
 import { toArabic } from 'typescript-roman-numbers-converter'
+import pokemonController from './pokemon'
 const prisma = new PrismaClient()
 
 export class MoveController {
@@ -82,7 +83,25 @@ export class MoveController {
     }
     static async getAll(req: any, res: any) {
         await prisma.$connect()
-        const result = await prisma.move.findMany()
+        let filter = JSON.parse(req.query.filter || "{}")
+        let where = {}
+        Object.keys(filter).map((key) => {
+            if(!Object.keys(prisma.move.fields).includes(key)) return null
+            switch (filter[key].type){
+                case "value":
+                    where = {...where, [key]:{
+                        gte: filter[key].value[0]?filter[key].value[0]:0,
+                        lte: filter[key].value[1]?filter[key].value[1]:255
+                    }}
+                    break;
+                case "ids":
+                        where = filter[key].value.length>0 ? 
+                            {...where, [key]:{in: filter[key].value}}:
+                            {...where};
+                    break;
+                }
+        })
+        const result = await prisma.move.findMany({where:where})
         await prisma.$disconnect()
         return res.json(result)
     }
