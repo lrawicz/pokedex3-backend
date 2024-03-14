@@ -185,23 +185,38 @@ export default  class pokemonController{
         if(typeof req.query.filter =="string"){
             Qfilter = JSON.parse(req.query.filter)
         }
-            if(Qfilter){
-                if(Qfilter.abilities){
-                    switch(method){
-                        case 1:
-                            let abilities:number[] = Qfilter.abilities.map((ability:any) => Number(ability))
-                            where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
-                            break;
-                        case 2:
-                            let pokemonsWithAbilities = await pokemonController.findPokemonsByAbility({abilityId:Qfilter.abilities, generation:Qfilter.generation})
-                            where = {...where, id:{in: pokemonsWithAbilities}}
-                            break;
-                    }
-                }
-            }
+        if(Qfilter){
+            //GENERATION
             where = {...where, generation:{
                 lte: isNaN(Number(Qfilter.generation))?9999:Number(Qfilter.generation)
             }}
+            //ABILITIES
+            if(Qfilter.abilities){
+                switch(method){
+                    case 1:
+                        let abilities:number[] = Qfilter.abilities.map((ability:any) => Number(ability))
+                        where = {...where, abilities: {some: {abilityId: {in: abilities}}}}
+                        break;
+                    case 2:
+                        let pokemonsWithAbilities = await pokemonController.findPokemonsByAbility({abilityId:Qfilter.abilities, generation:Qfilter.generation})
+                        where = {...where, id:{in: pokemonsWithAbilities}}
+                        break;
+                }
+            }
+
+            //STATS
+            if(Qfilter.STATS){
+                let a = {STATS:{hp:{type:"value",value:[20,55]}}}
+                Object.keys(Qfilter.STATS).map((key) => {
+                    if(!Object.keys(prisma.pokemon.fields).includes(key)) return null
+                    where = {...where, [key]:{
+                        gte: Qfilter.STATS[key].value[0]?Qfilter.STATS[key].value[0]:0,
+                        lte: Qfilter.STATS[key].value[1]?Qfilter.STATS[key].value[1]:255
+                    }}
+                })
+            }
+        }
+            
             
         
         let pokemons:any = await prisma.pokemon.findMany(
