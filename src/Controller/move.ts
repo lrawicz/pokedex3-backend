@@ -82,28 +82,39 @@ export class MoveController {
         return null
     }
     static async getAll(req: any, res: any) {
-        await prisma.$connect()
-        let filter = JSON.parse(req.query.filter || "{}")
-        let where = {}
-        Object.keys(filter).map((key) => {
-            if(!Object.keys(prisma.move.fields).includes(key)) return null
-            switch (filter[key].type){
-                case "value":
-                    where = {...where, [key]:{
-                        gte: filter[key].value[0]?filter[key].value[0]:0,
-                        lte: filter[key].value[1]?filter[key].value[1]:255
-                    }}
-                    break;
-                case "ids":
-                        where = filter[key].value.length>0 ? 
-                            {...where, [key]:{in: filter[key].value}}:
-                            {...where};
-                    break;
-                }
-        })
-        const result = await prisma.move.findMany({where:where})
-        await prisma.$disconnect()
-        return res.json(result)
+        let result
+        try{
+            await prisma.$connect()
+            let filter = JSON.parse(req.query.filter || "{}")
+            let where = {}
+
+            Object.keys(filter).map((key) => {
+
+                if(!Object.keys(prisma.move.fields).includes(key)) return null
+                switch (filter[key].type){
+                    case "value":
+                        where = {...where, [key]:{
+                            gte: filter[key].value[0]?filter[key].value[0]:0,
+                            lte: filter[key].value[1]?filter[key].value[1]:255
+                        }}
+                        break;
+                    case "ids":
+                        console.log(Object.entries(filter[key])[1][1])
+                        
+                         where = filter[key].value.length>0 ? 
+                             {...where, [key]:{in: Object.entries(filter[key])[1][1]}}:
+                             {...where};
+                         break;
+                    }
+                })
+            
+            result = await prisma.move.findMany({where:where})
+            await prisma.$disconnect()
+            return res.json(result)
+        }catch(error){
+            console.log(error)
+            return res.json([])
+        }
     }
     static async getDamageClass(req: any, res: any) {
         await prisma.$connect()
