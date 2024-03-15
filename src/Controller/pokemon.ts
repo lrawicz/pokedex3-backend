@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { LearnMove, PrismaClient } from "@prisma/client"
 //let roman = require('roman-numbers')
 import {toArabic} from "typescript-roman-numbers-converter"
 import { Request, Response } from 'express'
@@ -216,6 +216,23 @@ export default  class pokemonController{
                         lte: Qfilter.STATS[key].value[1]?Qfilter.STATS[key].value[1]:255
                     }}
                 })
+            }
+            //Moves
+            if(Qfilter.moves ){
+                let tmp:any = []
+                for (const item of Object.entries(Qfilter.moves)) {
+                    let moveList:any = item[1]
+                    if(moveList.length>0){
+                        let  pokeList:any =  await prisma.learnMove.findMany({select: {pokemonId: true}, where: {moveId: {in: moveList}}})
+                        pokeList = pokeList.map((item:Partial<LearnMove>)=>item.pokemonId) 
+                        tmp.push(new Set(pokeList))
+                    }
+                }
+                if(tmp.length>0){
+                    let pokemonsWithMoves = Array.from(tmp.reduce((a:any,b:any) => new Set([...a].filter(x => b.has(x)))))
+                    where = {...where, id:{in: pokemonsWithMoves}}
+                //where = {...where, id:{in: pokemonsWithMoves.map((item:any) => item.pokemonId)}}
+                }   
             }
         }
             
