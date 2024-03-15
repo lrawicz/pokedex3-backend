@@ -182,6 +182,8 @@ export default  class pokemonController{
         let where ={}
         let method = 1 // 1 is the fastest way to do it
         let Qfilter:any
+        let limit: number = Number(req.query.limit)||20
+        let offset:number = Number(req.query.offset)||0
         if(typeof req.query.filter =="string"){
             Qfilter = JSON.parse(req.query.filter)
         }
@@ -233,6 +235,10 @@ export default  class pokemonController{
                 )
             }
         }
-        res.json(pokemons)
+        //return only the first 10 items of array pokemon
+        res.json({
+            total: pokemons.length,
+            result: pokemons.slice(offset,limit)
+        })
     }
 }
