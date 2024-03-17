@@ -1,11 +1,8 @@
 import { PrismaClient } from '@prisma/client'
-import { create } from 'domain'
-import internal from 'stream'
 import { AbilityController } from './Controller/ability'
 import { MoveController } from './Controller/move'
-import { VersionGroupController } from './Controller/versionGroup'
-import { pokemonAbility } from './Controller/pokemonAbility'
 import pokemonController from './Controller/pokemon'
+import { VersionGroupController } from './Controller/versionGroup'
 import { MechanicController } from './Controller/mechanic'
 const ability_old = require("../backup/abilities.json")
 
@@ -127,8 +124,13 @@ let addStats = async () => {
     }
 }
 let populate = async () => {
-    await populatePokemon()
-    console.log("FINISHED")
+    //VersionGroupController.update()
+    //AbilityController.update() 
+    // await AbilityController.update()
+     // await MoveController.update()
+     //await pokemonController.update()
+    //await populatePokemon()
+    await MechanicController.update()
 }
 
 let populateMoves = async () => {
@@ -190,44 +192,6 @@ let testFindAbility = async () => {
     // })
 }
 let main = async () => {
-    //await populateAbilities()
-    //await showAbility(5)
-    //await populatePokemon()
-    //await populate()
-//    await addStats()
-//    prisma.
-//    await find({triggers:["full-hp","on-hit"]})
-
-
-    //populateMoves()
-    //await MoveController.uploadDescriptions()
-    
-    // await AbilityController.updateMechanics("as-one-spectrier",[
-    //     {triggers:["on-knock-out","on-hit"],targets:["self-stats"],effects:["stats-special-attack","power-up"]},
-    //     {triggers:["opponents-use-item","item-berry"],targets:["opponents-item"],effects:["prevent-item-use"]},
-    // ]
-    // )
-    
-    //  let result = await AbilityController.getData("as-one-glastrier")
-    //  console.log(result)
-
-
-    //await populateAbilities()
-    //
-    //console.log(await AbilityController.abilitiesToFix())
-    //await pokemonController.update()
-//    let result = await pokemonController.getPokemon("suicune")
-    //await VersionGroupController.update()
-    // await pokemonController.update()
-    // let mechanic={
-    //     triggers:["on-knock-out","on-hit"],
-    //     targets:["self-stats"],
-    //     effects:["stats-special-attack","power-up"]
-    // }
-    let data = await AbilityController.findByMechanic({
-        mechanic:{effects:["stats-special-attack","power-up"]}
-    })
-     //let data = await pokemonController.getMoves("suicune")
-     console.log(data)
+    populate()
 }
 main()
