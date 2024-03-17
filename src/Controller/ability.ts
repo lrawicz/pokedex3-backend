@@ -127,6 +127,7 @@ export class AbilityController{
                     this.update(data.next)
                 }
             })
+        await prisma.$disconnect()
         return null
     }
     static async abilitiesToFix():Promise <any> {

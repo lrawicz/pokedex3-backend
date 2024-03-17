@@ -13,19 +13,12 @@ export class MechanicController {
     let ability_old = require("../../backup/abilities.json")
     //drop DB
     
-    // import abilities.json
-    for(let key in ability_old){
-        //"related_moves"
-        //TODO: test 
+    for (let index = 0; index < Object.keys(ability_old).length; index++) {
+        console.log(index/ Object.keys(ability_old).length*100+"%");
+        const ability = ability_old[Object.keys(ability_old)[index]];
         let dataToUpload: any = {}
-
-        let ability = await prisma.ability.upsert({
-            where: {id: ability_old[key].id},
-            update: dataToUpload,
-            create: dataToUpload
-        })
-        for (let index = 0; index < ability_old[key]["mechanics"].length; index++) {
-            let  mechanic_raw = ability_old[key]["mechanics"][index];
+        for (let index = 0; index < ability["mechanics"].length; index++) {
+            let  mechanic_raw = ability["mechanics"][index];
             let triggers = []
             for (let index = 0; index < mechanic_raw.trigger.length; index++) {
                 let trigger = await prisma.trigger.findUnique({where: {name: mechanic_raw.trigger[index]}})
@@ -70,17 +63,24 @@ export class MechanicController {
     }
     prisma.$disconnect
     }
- public static async getTriggers   (req: Request, res: Response)  {
+ public static async getTriggers   (req: Request, res: Response, next: any)  {
+    try{
         const result:Trigger[] = await prisma.trigger.findMany()
         return res.json(result)
+    }catch(error){
+        return res.json([])
     }
+}
 public static async getTargets   (req: Request, res: Response)  {
-    const result:Target[] = await prisma.target.findMany()
-    return res.json(result)
+    try{
+        const result:Target[] = await prisma.target.findMany()
+        return res.json(result)
+    }catch(error){
+        return res.json([])
+    }
 }
 public static async getEffects   (req: Request, res: Response)  {
     const result:Effect[] = await prisma.effect.findMany()
-    //return res.json(triggers)
     return res.json(result)
 }
 }   

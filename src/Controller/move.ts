@@ -31,7 +31,12 @@ export class MoveController {
 
                                 contestEffectId = Number(data.contest_effect.url.match('\/[0-9]+\/')[0].replaceAll("/",""))
                             }
-                            
+                            if(data.flavor_text_entries){
+                                let tmp = data.flavor_text_entries.filter((item:any)=>item.language.name=="en")
+                                if (tmp.length > 0){
+                                    flavor_text = tmp[0].flavor_text.replaceAll("\n"," ")
+                                }
+                            }
                             let moveToAdd ={
                                 ///
                                 id:data.id,
@@ -79,6 +84,8 @@ export class MoveController {
             }).then((data) => {
                 if(data.next!= null) this.update(data.next)
             })
+        await prisma.$disconnect()
+
         return null
     }
     static async getAll(req: any, res: any) {
@@ -134,4 +141,11 @@ export class MoveController {
         await prisma.$disconnect()
         return res.json(result.map((item:any) => item.metaAilment))
     }
+    static async getCategories(req: any, res: any) {
+        await prisma.$connect()
+        const result = await prisma.move.findMany({select: {metaCategory:true},distinct: ['metaCategory']})
+        await prisma.$disconnect()
+        return res.json(result.map((item:any) => item.metaCategory))
+    }
+
 }

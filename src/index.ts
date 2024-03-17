@@ -1,4 +1,4 @@
-import express, {Request, Response} from 'express';
+import express, {Request, Response,ErrorRequestHandler} from 'express';
 import { MechanicController } from './Controller/mechanic';
 import pokemonController from './Controller/pokemon';
 import { MoveController } from './Controller/move';
@@ -23,10 +23,17 @@ app.get('/moves', MoveController.getAll);
 app.get('/moves/getDamageClass', MoveController.getDamageClass);
 app.get('/moves/getTargetTypes', MoveController.getTargetTypes);
 app.get('/moves/getAilments', MoveController.getAilments);
+app.get('/moves/getCategories', MoveController.getCategories);
+
 
 app.get('/abilities',AbilityController.getAbilities);
 app.get('/pokemon/types',pokemonController.getAllTypes);
 app.get('/pokemons',pokemonController.getAllPokemons);
+
+app.use((err:any, req:Request, res:Response, next:any) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

@@ -127,10 +127,10 @@ let populate = async () => {
     //VersionGroupController.update()
     //AbilityController.update() 
     // await AbilityController.update()
-     // await MoveController.update()
+    await MoveController.update()
      //await pokemonController.update()
     //await populatePokemon()
-    await MechanicController.update()
+    // await MechanicController.update()
 }
 
 let populateMoves = async () => {

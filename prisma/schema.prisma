@@ -60,9 +60,13 @@ model Ability {
 }
 
 model Mechanic {
-  id         Int                 @id @default(autoincrement())
-  abilityId  Int @default(0)
-  ability    Ability @relation(fields: [abilityId], references: [id])
+  id         Int   @id @default(autoincrement())
+  abilityId  Int?
+  moveId     Int?
+
+  ability    Ability?  @relation(fields: [abilityId], references: [id])
+  move       move?     @relation(fields: [moveId], references: [id])  
+
   triggers MechanicsTriggers[]
   targets MechanicsTargets[]
   effects MechanicsEffects[]
@@ -155,6 +159,9 @@ model move {
     metaMinTurns Int?
     metaStatChance Int?
 
+    new Boolean? @default(true)
+
+    mechanics Mechanic[]
     learnMoves LearnMove[]
     move_moveGrups move_moveGrups[]
     //contestEffect @relation(fields: [contestEffectId], references: [id])

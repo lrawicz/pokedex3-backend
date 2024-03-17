@@ -178,7 +178,8 @@ export default  class pokemonController{
         types = types.map((type:any) => type.type1)
         res.json(types)
     }
-    static async getAllPokemons(req: Request, res: Response){
+    static async getAllPokemons(req: Request, res: Response, next: any){
+        try{
         let where ={}
         let method = 1 // 1 is the fastest way to do it
         let Qfilter:any
@@ -188,12 +189,15 @@ export default  class pokemonController{
             Qfilter = JSON.parse(req.query.filter)
         }
         if(Qfilter){
+            //GENERAL
+                //TODO
+
             //GENERATION
             where = {...where, generation:{
                 lte: isNaN(Number(Qfilter.generation))?9999:Number(Qfilter.generation)
             }}
             //ABILITIES
-            if(Qfilter.abilities){
+            if(Qfilter.abilities && Qfilter.abilities.length>0){
                 switch(method){
                     case 1:
                         let abilities:number[] = Qfilter.abilities.map((ability:any) => Number(ability))
@@ -231,20 +235,21 @@ export default  class pokemonController{
                 if(tmp.length>0){
                     let pokemonsWithMoves = Array.from(tmp.reduce((a:any,b:any) => new Set([...a].filter(x => b.has(x)))))
                     where = {...where, id:{in: pokemonsWithMoves}}
-                //where = {...where, id:{in: pokemonsWithMoves.map((item:any) => item.pokemonId)}}
                 }   
             }
+
         }
             
             
-        
+        console.log(where)
         let pokemons:any = await prisma.pokemon.findMany(
-            {select: {id:true, name:true}, where: where, orderBy: {id: "asc"}})
+            {select: {id:true, name:true}, where: where, orderBy: {id: "asc"}}
+        )
         pokemons = await Promise.all(pokemons.map(async(pokemon:any) => {
             return await pokemonController.getPokemonbyId({pokemonRequest:pokemon.id,generation: Qfilter.generation})
         }))
         if(method==1){
-            if (Qfilter.abilities){
+            if (Qfilter.abilities && Qfilter.abilities.length>0){
                 pokemons = pokemons.filter((pokemon:any) => 
                 ( Qfilter.abilities?.includes(pokemon.abilities.slot1?.ability?.id||-1)) ||
                 ( Qfilter.abilities?.includes(pokemon.abilities.slot2?.ability?.id||-1)) ||
@@ -257,5 +262,8 @@ export default  class pokemonController{
             total: pokemons.length,
             result: pokemons.slice(offset,limit)
         })
+    }catch(error){
+        next(error)
+    }
     }
 }
