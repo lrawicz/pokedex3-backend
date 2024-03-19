@@ -1,0 +1,11 @@
+version: '4'
+
+services:
+  pokedex_db:
+    image: postgres:13-alpine
+    container_name: pokedex_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 5433:5433
