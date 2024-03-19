@@ -26,7 +26,7 @@ export class AbilityController{
                     trigger_query = mechanic.triggers.map((trigger) => {
                         return `SELECT m."abilityId" as id from "MechanicsTriggers" me
                         INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                        WHERE me."triggerId" = ${trigger}
+                        WHERE me."triggerId" = ${trigger} AND m."abilityId" is not null
                         GROUP BY m."abilityId"`
                     })
                 }
@@ -34,7 +34,7 @@ export class AbilityController{
                     target_query = mechanic.targets.map((target) => {
                     return `SELECT m."abilityId" as id from "MechanicsTargets" me
                     INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                    WHERE me."targetId"   = ${target}
+                    WHERE me."targetId"   = ${target} AND m."abilityId" is not null
                     GROUP BY m."abilityId"`
                 })
                 }
@@ -42,7 +42,7 @@ export class AbilityController{
                     effect_query = mechanic.effects.map((effect) => {
                     return `SELECT m."abilityId" as id  from "MechanicsEffects" me
                     INNER JOIN "Mechanic" m  ON m.id  = me."mechanicId" 
-                    WHERE me."effectId"   = ${effect}
+                    WHERE me."effectId"   = ${effect} AND m."abilityId" is not null
                     GROUP BY m."abilityId"`
                 })
                 }

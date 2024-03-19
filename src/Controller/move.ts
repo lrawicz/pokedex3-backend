@@ -1,12 +1,14 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Target } from '@prisma/client'
 import { resolve } from 'path'
 import { toArabic } from 'typescript-roman-numbers-converter'
 import pokemonController from './pokemon'
+import { MechanicController } from './mechanic'
 const prisma = new PrismaClient()
 
 export class MoveController {
     static async update(url:string = `https://pokeapi.co/api/v2/move`):Promise <null> {
         await prisma.$connect()
+        await prisma.mechanic.deleteMany({where: {moveId: {not: null}}})
         console.log(url)
         fetch(url)
             .then((response) => response.json())
@@ -78,6 +80,39 @@ export class MoveController {
                                 update: moveToAdd,
                                 create: moveToAdd
                             })
+                            
+                            for (let index = 0; index < data.stat_changes.length; index++) {
+                                const element = data.stat_changes[index];
+                                element.stat.name
+                                element.change
+                                let target1:any = await prisma.effect.findUnique({where: {name: `stats-${element.stat.name}`}})
+                                let target2:any = await prisma.effect.findUnique({where: {name: `stats`}})
+                                let target3:any
+                                
+
+                                if(element.change>0){
+                                    target3 = await prisma.effect.findUnique({where: {name: `power-up`}})
+                                }else{
+                                    target3 = await prisma.effect.findUnique({where: {name: `power-down`}})
+                                }
+                                if(!target1 || !target2 || !target3){
+                                    console.log(`stats-${element.stat.name}`)
+                                    throw new Error("Target not found")
+                                }
+                                // create mechanic with moveId data.id and using target, target2 and target3
+                                await prisma.mechanic.create({
+                                    data:{
+                                        moveId:data.id,
+                                        effects:{
+                                            create: [
+                                                {effect:{connect: {id: target1.id}}},
+                                                {effect:{connect: {id: target2.id}}},
+                                                {effect:{connect: {id: target3.id}}}
+                                            ]
+                                        }
+                                    }
+                                })
+                            }
                         })
                 }))
                 return data
