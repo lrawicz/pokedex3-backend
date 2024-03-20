@@ -71,63 +71,62 @@ export class AbilityController{
         return res.json(await AbilityController.findByMechanic({mechanic:JSON.parse(filter)}))
     }
     static async update(url:string = "https://pokeapi.co/api/v2/ability"):Promise <null>{
-        await prisma.$connect()
-        fetch(url)
-            .then((response) => response.json())
-            .then((data) => {
-                Promise.all(
-                    data.results.map((ability:any) => {
-                        fetch(ability.url)
-                            .then((response) => response.json())
-                            .then(async(data) => {
-                                    let effect:string|null = null
-                                    let short_effect:string|null = null
-                                    let flavor_text:string|null = null
-                                    if(data.effect_entries){
-                                        let tmp = data.effect_entries.filter((item:any)=>item.language.name=="en")
-                                        if (tmp.length > 0){
-                                            effect = tmp[0].effect.replaceAll("\n"," ")
-                                            short_effect =tmp[0].short_effect.replaceAll("\n"," ")
-                                        }
-                                    }
-                                    if(data.flavor_text_entries){
-                                        let tmp = data.flavor_text_entries.filter((item:any)=>item.language.name=="en")
-                                        if (tmp.length > 0){
-                                            flavor_text = tmp[0].flavor_text.replaceAll("\n"," ")
-                                        }
-                                    }
-                                    let dataToUpload:any = {
-                                        id: data.id,
-                                        name: data.name,
-                                        new: true,
-                                        is_main_series: data.is_main_series,
-                                        generation: toArabic(data.generation.name.split("-")[1]),
-                                    }
-                                    
-                                    if(effect){
-                                        dataToUpload["effect"] = effect
-                                        dataToUpload["shortEffect"] = short_effect
-                                    }
-                                    if(flavor_text){
-                                        dataToUpload["flavorText"] = flavor_text
-                                    }
-
-                                    await prisma.ability.upsert({
-                                        where: {id: dataToUpload.id},
-                                        update: dataToUpload,
-                                        create: {...dataToUpload,new:true}
-                                    })
-                                   
-                            })
-                    })
-                )
-                return data
-            }).then((data) => {
-                if(data.next){
-                    this.update(data.next)
+        let dataAll = await (await fetch(url)).json()
+        const fetcher = async(path:string) => {
+            let response = await fetch( path);
+            return await response.json()
+          }
+        let fetchAbili = []
+        for (let ability of dataAll.results){
+            fetchAbili.push( fetcher(ability.url))
+        }
+        let abilities = await Promise.all(fetchAbili)
+        let saveData = async (ability:any) => {
+        
+            let effect:string|null = null
+            let short_effect:string|null = null
+            let flavor_text:string|null = null
+            if(ability.effect_entries){
+                let tmp = ability.effect_entries.filter((item:any)=>item.language.name=="en")
+                if (tmp.length > 0){
+                    effect = tmp[0].effect.replaceAll("\n"," ")
+                    short_effect =tmp[0].short_effect.replaceAll("\n"," ")
                 }
+            }
+            if(ability.flavor_text_entries){
+                let tmp = ability.flavor_text_entries.filter((item:any)=>item.language.name=="en")
+                if (tmp.length > 0){
+                    flavor_text = tmp[0].flavor_text.replaceAll("\n"," ")
+                }
+            }
+            let dataToUpload:any = {
+                id: ability.id,
+                name: ability.name,
+                new: true,
+                is_main_series: ability.is_main_series,
+                generation: toArabic(ability.generation.name.split("-")[1]),
+            }
+                            
+            if(effect){
+                dataToUpload["effect"] = effect
+                dataToUpload["shortEffect"] = short_effect
+            }
+            if(flavor_text){
+                dataToUpload["flavorText"] = flavor_text
+            }
+
+            await prisma.ability.upsert({
+                where: {id: dataToUpload.id},
+                update: dataToUpload,
+                create: {...dataToUpload,new:true}
             })
-        await prisma.$disconnect()
+        }
+        console.log(url)
+        Promise.all(abilities.map(saveData))
+        
+        if(dataAll.next){
+            await this.update(dataAll.next)
+        }
         return null
     }
     static async abilitiesToFix():Promise <any> {

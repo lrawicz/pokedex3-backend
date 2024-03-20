@@ -14,7 +14,8 @@ export class MechanicController {
     //drop DB
     
     for (let index = 0; index < Object.keys(ability_old).length; index++) {
-        console.log(index/ Object.keys(ability_old).length*100+"%");
+        
+        console.log(Math.floor(index/ Object.keys(ability_old).length*100)+"%");
         const ability = ability_old[Object.keys(ability_old)[index]];
         let dataToUpload: any = {}
         for (let index = 0; index < ability["mechanics"].length; index++) {

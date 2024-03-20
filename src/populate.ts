@@ -7,66 +7,6 @@ import { MechanicController } from './Controller/mechanic'
 const ability_old = require("../backup/abilities.json")
 
 const prisma = new PrismaClient()
-let populatePokemon = async () => {
-
-    await prisma.$connect()
-    //drop DB
-    // load files in pokemons folder
-    const fs = require('fs')
-    const path = require('path')
-    const folder = path.join(__dirname, '../data_raw/pokemons')
-    const files = fs.readdirSync(folder)
-    // import pokemons
-    for (let index = 0; index < files.length; index++) {
-        const file = files[index]
-        const pokemon = require(`../data_raw/pokemons/${file}`)
-        try{
-
-         await prisma.pokemon.create({data: {
-            id: pokemon.id,
-            name: pokemon.name,
-            type1: pokemon.types[0]?pokemon.types[0]:null,
-            type2: pokemon.types[1]?pokemon.types[1]:null,
-            hp: pokemon.stats.hp,
-            attack: pokemon.stats.attack,
-            defense: pokemon.stats.defense,
-            specialAttack: pokemon.stats["special-attack"],
-            specialDefense: pokemon.stats["special-defense"],
-            speed: pokemon.stats.speed,
-            generation: pokemon.generation,
-
-            weight: pokemon.weight,
-            height: pokemon.height,
-            color: pokemon.color,
-            isBaby: pokemon.is_baby,
-            isLegendary: pokemon.is_legendary,
-            isMythical: pokemon.is_mythical,
-            growthRate: pokemon.growth_rate,
-            habitat: pokemon.habitat,
-
-            abilities: {
-                create:
-                await Promise.all(pokemon.abilities.map(async(ability:any) => {
-                    let ab = await prisma.ability.findUnique({where: {name: ability.name}})
-                    if (ab){
-                        return {ability:{connect: {id: ab.id}}, generation: "last"}
-                    }else{
-                        console.log(`habilidad ${ability.name} no encontrada`)
-                        return {ability:{connect: {id: null}}, generation: "last"}
-                    }
-                }))
-            },
-        }})
-        }
-        catch(e){
-            console.log(e)
-        }
-
-    }
-
-
-    await prisma.$disconnect()
-}
 let find = async ({triggers=[],targets=[],effects=[]}:{triggers?:String[],targets?:String[],effects?:String[]}) => {
     await prisma.$connect()
     let trigger_query = triggers.map((trigger) => {
@@ -124,13 +64,20 @@ let addStats = async () => {
     }
 }
 let populate = async () => {
-    //VersionGroupController.update()
-    //AbilityController.update() 
-    // await AbilityController.update()
+    console.log("updating version groups...")
+    await VersionGroupController.update()
+
+    console.log("updating abilities...")
+    await AbilityController.update()
+
+    console.log("updating moves...")
     await MoveController.update()
-     //await pokemonController.update()
-    //await populatePokemon()
-    // await MechanicController.update()
+
+    console.log("updating pokemons...")
+    await pokemonController.update()
+
+    console.log("updating mechanics...")
+    await MechanicController.update()
 }
 
 let populateMoves = async () => {

@@ -5,90 +5,92 @@ import { Request, Response } from 'express'
 
 const prisma = new PrismaClient()
 export default  class pokemonController{
-    static async update(url:string= "https://pokeapi.co/api/v2/pokemon"):Promise <null> {
+    static async update(url:string= "https://pokeapi.co/api/v2/pokemon") {
         // This is a placeholder for the actual implementation
-        fetch(url).then(async(response) => response.json()).then((data) => {
-            Promise.all(data.results.map(async(pokemon:any) => {
-                fetch(pokemon.url).then(async(response) => response.json()).then(async(data) => {
-                    console.log(data.id)
-                    let specie:any = await fetch(data.species.url).then(async(response) => response.json())
-                    let abilityPokemon = data.abilities.map((ability:any) => {
-                        return {
-                            abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
-                            generation: 9999,
-                            slot: ability.slot,
-                            isHidden: ability.is_hidden 
-                        }
-                    })
-                    data.past_abilities.map((meta_abilities:any) => {
-                        let generation = meta_abilities.generation.name
-                        meta_abilities.abilities.map((ability:any) => {
-                            abilityPokemon.push({
-                                abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
-                                generation: toArabic(generation.split("-")[1])||0,
-                                slot: ability.slot,
-                                isHidden: ability.is_hidden 
-                            })
-                        })
-                    })
-                    let moveLearns:any[] = []
-                    data.moves.map((item:any) => {
-                        let moveId = item.move.url.match("/[0-9]+/")[0].replaceAll("/","")
-                        item.version_group_details.map((version:any) => {
-                            moveLearns.push({
-                                moveId: Number(moveId),
-                                method: version.move_learn_method.name,
-                                versionGroupId: Number(version.version_group.url.match("/[0-9]+/")[0].replaceAll("/","")),
-                                level: version.level_learned_at
-                            })
-                        })
-                    })
-                    let pokeInDb = await prisma.pokemon.findUnique({where: {id: data.id}})
-                        let dataToCreate:any = {
-                            id:data.id,
-                            name: data.name,
-                            height: data.height,
-                            weight: data.weight,
-                            hp: data.stats[0].base_stat,
-                            attack: data.stats[1].base_stat,
-                            defense: data.stats[2].base_stat,
-                            specialAttack: data.stats[3].base_stat,
-                            specialDefense: data.stats[4].base_stat,
-                            speed: data.stats[5].base_stat,
-                            pastHabilities: data.past_abilities,
-                            isBaby: specie.is_baby,
-                            isLegendary: specie.is_legendary,
-                            isMythical: specie.is_mythical,
-                            genderRate: specie.gender_rate,
-                            captureRate: specie.capture_rate,
-                            specie: specie.name,
-                            color: specie.color.name,
-                            growthRate:specie.growth_rate.name,
-                            habitat:specie.habitat?specie.habitat.name:null,
-                            type1: data.types[0].type.name,
-                            type2: data.types[1] ? data.types[1].type.name : null,
-                            generation: Number(toArabic(specie.generation.name.split("-")[1])||0),
-                            hasGenderDifferences: specie.has_gender_differences,
-                            abilities: {create: abilityPokemon},
-                            movesLearns: {create: moveLearns}
-                        }
-                        let dataToUpload = { ...dataToCreate };
-                        delete dataToUpload.generation
-                        await prisma.pokemon.upsert({
-                            where: { id: data.id },
-                            update: dataToUpload,
-                            create: dataToCreate,
-                        });
+        let dataAll = await (await fetch(url)).json()
+        const fetcher = async(path:string) => {
+            let response = await fetch(path);
+            return await response.json()
+        }
+        let fetchPoke = []
+        for (let pokemon of dataAll.results){
+            fetchPoke.push( fetcher(pokemon.url))
+        }
+        let pokemons = await Promise.all(fetchPoke)
+        let saveData = async(pokemon:any)=>{
+            let specie:any = await fetch(pokemon.species.url).then(async(response) => response.json())
+            let abilityPokemon = pokemon.abilities.map((ability:any) => {
+                    return {
+                        abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
+                        generation: 9999,
+                        slot: ability.slot,
+                        isHidden: ability.is_hidden 
+                    }
                 })
-            }))
-            return (data)
-        })
-        .then((data) => {
-            if(data.next){
-                return pokemonController.update(data.next)
+            pokemon.past_abilities.map((meta_abilities:any) => {
+                let generation = meta_abilities.generation.name
+                meta_abilities.abilities.map((ability:any) => {
+                    abilityPokemon.push({
+                        abilityId: Number(ability.ability.url.match("/[0-9]+/")[0].replaceAll("/","")),
+                        generation: toArabic(generation.split("-")[1])||0,
+                        slot: ability.slot,
+                        isHidden: ability.is_hidden 
+                    })
+                })
+            })
+            let moveLearns:any[] = []
+            pokemon.moves.map((item:any) => {
+                let moveId = item.move.url.match("/[0-9]+/")[0].replaceAll("/","")
+                item.version_group_details.map((version:any) => {
+                    moveLearns.push({
+                        moveId: Number(moveId),
+                        method: version.move_learn_method.name,
+                        versionGroupId: Number(version.version_group.url.match("/[0-9]+/")[0].replaceAll("/","")),
+                        level: version.level_learned_at
+                    })
+                })
+            })
+            let dataToCreate:any = {
+                id:pokemon.id,
+                name: pokemon.name,
+                height: pokemon.height,
+                weight: pokemon.weight,
+                hp: pokemon.stats[0].base_stat,
+                attack: pokemon.stats[1].base_stat,
+                defense: pokemon.stats[2].base_stat,
+                specialAttack: pokemon.stats[3].base_stat,
+                specialDefense: pokemon.stats[4].base_stat,
+                speed: pokemon.stats[5].base_stat,
+                pastHabilities: pokemon.past_abilities,
+                isBaby: specie.is_baby,
+                isLegendary: specie.is_legendary,
+                isMythical: specie.is_mythical,
+                genderRate: specie.gender_rate,
+                captureRate: specie.capture_rate,
+                specie: specie.name,
+                color: specie.color.name,
+                growthRate:specie.growth_rate.name,
+                habitat:specie.habitat?specie.habitat.name:null,
+                type1: pokemon.types[0].type.name,
+                type2: pokemon.types[1] ? pokemon.types[1].type.name : null,
+                generation: Number(toArabic(specie.generation.name.split("-")[1])||0),
+                hasGenderDifferences: specie.has_gender_differences,
+                abilities: {create: abilityPokemon},
+                movesLearns: {create: moveLearns}
             }
-        })
-        return null
+            let dataToUpload = { ...dataToCreate };
+            delete dataToUpload.generation
+            await prisma.pokemon.upsert({
+                where: { id: pokemon.id },
+                update: dataToUpload,
+                create: dataToCreate,
+            });
+        }
+        console.log(url)
+        await Promise.all(pokemons.map(saveData))
+        if(dataAll.next){
+            await pokemonController.update(dataAll.next)
+        }
     }
 
     static async searchPokemon({options, generation}:{options:any, generation:any}){
