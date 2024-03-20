@@ -123,7 +123,7 @@ export class AbilityController{
             })
         }
         console.log(url)
-        Promise.all(abilities.map(saveData))
+        await Promise.all(abilities.map(saveData))
         await prisma.$disconnect()
         if(dataAll.next){
             await this.update(dataAll.next)

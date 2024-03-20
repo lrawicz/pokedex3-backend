@@ -117,7 +117,7 @@ export class MoveController {
                 })
             }
         }
-        Promise.all(moves.map(saveData))
+        await Promise.all(moves.map(saveData))
         await prisma.$disconnect()
         console.log(url)
         if(dataAll.next){
