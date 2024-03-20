@@ -71,7 +71,7 @@ export class AbilityController{
         return res.json(await AbilityController.findByMechanic({mechanic:JSON.parse(filter)}))
     }
     static async update(url:string = "https://pokeapi.co/api/v2/ability"):Promise <null>{
-        prisma.$connect()
+        await prisma.$connect()
         let dataAll = await (await fetch(url)).json()
         const fetcher = async(path:string) => {
             let response = await fetch( path);
@@ -124,7 +124,7 @@ export class AbilityController{
         }
         console.log(url)
         Promise.all(abilities.map(saveData))
-        prisma.$disconnect()
+        await prisma.$disconnect()
         if(dataAll.next){
             await this.update(dataAll.next)
         }

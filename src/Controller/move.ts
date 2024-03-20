@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export class MoveController {
     static async update(url:string = `https://pokeapi.co/api/v2/move`):Promise <null> {
-        prisma.$connect()
+        await prisma.$connect()
         await prisma.mechanic.deleteMany({where: {moveId: {not: null}}})
         let dataAll = await (await fetch(url)).json()
         const fetcher = async(path:string) => {
@@ -118,7 +118,7 @@ export class MoveController {
             }
         }
         Promise.all(moves.map(saveData))
-        prisma.$disconnect()
+        await prisma.$disconnect()
         console.log(url)
         if(dataAll.next){
             await this.update(dataAll.next)

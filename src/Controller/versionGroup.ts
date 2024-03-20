@@ -4,7 +4,7 @@ import {toArabic} from "typescript-roman-numbers-converter"
 
 export class VersionGroupController {
     static async update(url:string =`https://pokeapi.co/api/v2/version-group` ):Promise <null> {
-    prisma.$connect()
+    await prisma.$connect()
     let dataAll = await (await fetch(url)).json()
         
     const fetcher = async(path:string) => {
@@ -32,7 +32,7 @@ export class VersionGroupController {
     }
     console.log(url)
     await Promise.all(versions.map(saveData))
-    prisma.$disconnect()
+    await prisma.$disconnect()
             
     if(dataAll.next){
         this.update(dataAll.next)

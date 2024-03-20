@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 export default  class pokemonController{
     static async update(url:string= "https://pokeapi.co/api/v2/pokemon") {
         // This is a placeholder for the actual implementation
-        prisma.$connect()
+        await prisma.$connect()
         let dataAll = await (await fetch(url)).json()
         const fetcher = async(path:string) => {
             let response = await fetch(path);
@@ -89,7 +89,7 @@ export default  class pokemonController{
         }
         console.log(url)
         await Promise.all(pokemons.map(saveData))
-        prisma.$disconnect()
+        await prisma.$disconnect()
         if(dataAll.next){
             await pokemonController.update(dataAll.next)
         }

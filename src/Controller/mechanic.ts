@@ -62,7 +62,7 @@ export class MechanicController {
             })
         }
     }
-    prisma.$disconnect
+    await prisma.$disconnect()
     }
  public static async getTriggers   (req: Request, res: Response, next: any)  {
     try{
