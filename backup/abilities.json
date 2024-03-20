@@ -1506,7 +1506,7 @@
                     "on-hit"
                 ],
                 "effect": [
-                    "accurency",
+                    "stats-accuracy",
                     "power-up"
                 ]
             },
@@ -1518,7 +1518,7 @@
                     "on-attack"
                 ],
                 "effect": [
-                    "accurency",
+                    "stats-accuracy",
                     "power-up"
                 ]
             }
@@ -2393,7 +2393,7 @@
                 ],
                 "effect": [
                     "power-up",
-                    "accurency"
+                    "stats-accuracy"
                 ]
             }
         ],
@@ -5469,7 +5469,7 @@
                 ],
                 "effect": [
                     "power-down",
-                    "accurency"
+                    "stats-accuracy"
                 ]
             },
             {
@@ -6354,7 +6354,7 @@
                 ],
                 "effect": [
                     "power-down",
-                    "accurency"
+                    "stats-accuracy"
                 ]
             }
         ],
@@ -6739,7 +6739,7 @@
                 ],
                 "effect": [
                     "power-up",
-                    "accurency"
+                    "stats-accuracy"
                 ]
             }
         ],
@@ -6885,7 +6885,7 @@
                     "ignore",
                     "stats-defense",
                     "stats-special-defense",
-                    "evasion"
+                    "stats-evasion"
                 ]
             },
             {
@@ -6899,7 +6899,7 @@
                     "ignore",
                     "stats-attack",
                     "stats-special-attack",
-                    "accurency"
+                    "stats-accuracy"
                 ]
             }
         ],
@@ -7407,7 +7407,7 @@
                 ],
                 "effect": [
                     "power-up",
-                    "evasion"
+                    "stats-evasion"
                 ]
             }
         ],
@@ -8672,7 +8672,7 @@
                 "effect": [
                     "power-up",
                     "stats",
-                    "evasion"
+                    "stats-evasion"
                 ]
             }
         ],
@@ -9358,7 +9358,7 @@
                     "weather-sandstorm"
                 ],
                 "effect": [
-                    "evasion",
+                    "stats-evasion",
                     "power-up"
                 ]
             }
@@ -12983,7 +12983,7 @@
             {
                 "target": ["opponents-stats"],
                 "trigger": ["enter-battle"],
-                "effect": ["evasion","power-down"]
+                "effect": ["stats-evasion","power-down"]
             }
         ],
         "generation": "generation-ix",
@@ -13012,7 +13012,7 @@
         "The Pokémon ignores changes to opponents' evasiveness, its accuracy can't be lowered, and it can hit Ghost types with Normal-type and Fighting-type moves",
         "mechanics": [
             {
-                "target": ["opponents-evasion","evasion"],
+                "target": ["opponents-evasion","stats-evasion"],
                 "trigger": ["change"],
                 "effect": ["ignore"]
             },
