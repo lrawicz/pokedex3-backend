@@ -12,7 +12,7 @@ export class MechanicController {
     await prisma.$connect()
     let ability_old = require("../../backup/abilities.json")
     //drop DB
-    
+    await prisma.mechanic.deleteMany()
     for (let index = 0; index < Object.keys(ability_old).length; index++) {
         
         console.log(Math.floor(index/ Object.keys(ability_old).length*100)+"%");
