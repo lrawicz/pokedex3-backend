@@ -67,6 +67,9 @@ let populate = async () => {
     console.log("updating version groups...")
     await VersionGroupController.update()
 
+    console.log("updating mechanics...")
+    await MechanicController.update()
+
     console.log("updating abilities...")
     await AbilityController.update()
 
@@ -76,8 +79,7 @@ let populate = async () => {
     console.log("updating pokemons...")
     await pokemonController.update()
 
-    console.log("updating mechanics...")
-    await MechanicController.update()
+
 }
 
 let populateMoves = async () => {
