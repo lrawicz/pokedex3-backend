@@ -8,7 +8,9 @@ services:
     env_file:
       - .env
     ports:
-      - 5433:5433
+      - 5433:5432
+    networks:
+      - pokedex_network
   pokedex_api:
     build: .
     container_name: pokedex_api
@@ -19,3 +21,15 @@ services:
       - 3000:3000
     depends_on:
       - pokedex_db
+    networks:
+      - pokedex_network
+  ubuntu:
+    image: ubuntu:latest
+    container_name: ubuntu
+    command: sh
+    networks:
+      - pokedex_network
+
+networks:
+  pokedex_network:
+    driver: bridge
