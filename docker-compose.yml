@@ -23,12 +23,6 @@ services:
       - pokedex_db
     networks:
       - pokedex_network
-  ubuntu:
-    image: ubuntu:latest
-    container_name: ubuntu
-    command: sh
-    networks:
-      - pokedex_network
 
 networks:
   pokedex_network:

@@ -13,7 +13,7 @@ RUN npm install
 # Copiar el resto de los archivos de la aplicación
 COPY . .
 
-RUN npx prisma db push
+RUN npx prisma generate
 
 # Ejecutar el comando de construcción
 RUN npm run build
