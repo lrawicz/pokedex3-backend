@@ -5,7 +5,7 @@ import { Request, Response } from 'express'
 
 const prisma = new PrismaClient()
 export default  class pokemonController{
-    static async update(url:string= "https://pokeapi.co/api/v2/pokemon") {
+    private static  async internal_update(url:string= "https://pokeapi.co/api/v2/pokemon") {
         // This is a placeholder for the actual implementation
         await prisma.$connect()
         let dataAll = await (await fetch(url)).json()
@@ -96,6 +96,9 @@ export default  class pokemonController{
         if(dataAll.next){
             await pokemonController.update(dataAll.next)
         }
+    }
+    static async update(url:string= "https://pokeapi.co/api/v2/pokemon") {
+        await this.internal_update(url)
     }
 
     static async searchPokemon({options, generation}:{options:any, generation:any}){
@@ -231,10 +234,18 @@ export default  class pokemonController{
             //Moves
             if(Qfilter.moves ){
                 let tmp:any = []
+
+                await prisma.versionGroup.findFirstOrThrow(
+                    {where: {generation: Qfilter.generation},orderBy: {id: "desc"}
+                })
                 for (const item of Object.entries(Qfilter.moves)) {
                     let moveList:any = item[1]
                     if(moveList.length>0){
-                        let  pokeList:any =  await prisma.learnMove.findMany({select: {pokemonId: true}, where: {moveId: {in: moveList}}})
+                        let  pokeList:any =  await prisma.learnMove.findMany(
+                            {
+                                select: {pokemonId: true}, 
+                                where: {moveId: {in: moveList}}}
+                            )
                         pokeList = pokeList.map((item:Partial<LearnMove>)=>item.pokemonId) 
                         tmp.push(new Set(pokeList))
                     }
@@ -247,13 +258,12 @@ export default  class pokemonController{
 
         }
             
-            
-        console.log(where)
         let pokemons:any = await prisma.pokemon.findMany(
             {select: {id:true, name:true}, where: where, orderBy: {id: "asc"}}
         )
         pokemons = await Promise.all(pokemons.map(async(pokemon:any) => {
-            return await pokemonController.getPokemonbyId({pokemonRequest:pokemon.id,generation: Qfilter.generation})
+            return await pokemonController.getPokemonbyId(
+                {pokemonRequest:pokemon.id,generation: Qfilter.generation})
         }))
         if(method==1){
             if (Qfilter.abilities && Qfilter.abilities.length>0){
