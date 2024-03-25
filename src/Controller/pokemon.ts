@@ -40,6 +40,8 @@ export default  class pokemonController{
                 })
             })
             let moveLearns:any[] = []
+            await prisma.learnMove.deleteMany({where: {pokemonId: pokemon.id}})
+            await prisma.pokemonAbility.deleteMany({where: {pokemonId: pokemon.id}})
             pokemon.moves.map((item:any) => {
                 let moveId = item.move.url.match("/[0-9]+/")[0].replaceAll("/","")
                 item.version_group_details.map((version:any) => {
