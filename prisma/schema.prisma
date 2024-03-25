@@ -27,6 +27,7 @@ model Pokemon {
   specialDefense Int
   speed Int
 
+  order Int?
   weight Int?
   height Int?
   color String?

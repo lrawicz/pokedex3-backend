@@ -63,6 +63,7 @@ export default  class pokemonController{
                 specialDefense: pokemon.stats[4].base_stat,
                 speed: pokemon.stats[5].base_stat,
                 pastHabilities: pokemon.past_abilities,
+                order: pokemon.order,
                 isBaby: specie.is_baby,
                 isLegendary: specie.is_legendary,
                 isMythical: specie.is_mythical,
