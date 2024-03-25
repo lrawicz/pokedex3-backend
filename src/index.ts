@@ -28,6 +28,7 @@ app.get('/moves/getCategories', MoveController.getCategories);
 
 app.get('/abilities',AbilityController.getAbilities);
 app.get('/pokemon/types',pokemonController.getAllTypes);
+app.get('/pokemon/colors',pokemonController.getAllColors);
 app.get('/pokemons',pokemonController.getAllPokemons);
 
 app.use((err:any, req:Request, res:Response, next:any) => {

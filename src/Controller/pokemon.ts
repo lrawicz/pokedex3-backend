@@ -271,4 +271,9 @@ export default  class pokemonController{
         next(error)
     }
     }
+    static async getAllColors(req: Request, res: Response){
+        let colors = await prisma.pokemon.findMany({select: {color:true }, distinct: ["color"]})
+        colors = colors.map((color:any) => color.color)
+        res.json(colors)
+    }
 }
