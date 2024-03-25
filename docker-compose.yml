@@ -7,6 +7,8 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - pokedex_db:/var/lib/postgresql
     ports:
       - 5433:5432
     networks:
@@ -27,3 +29,6 @@ services:
 networks:
   pokedex_network:
     driver: bridge
+volumes:
+  pokedex_db:
+    external: true
