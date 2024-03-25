@@ -63,6 +63,26 @@ let addStats = async () => {
     
     }
 }
+
+let runQueries = async () => {
+    // run queries from folder queries
+    const fs = require('fs')
+    const path = require('path')
+    const folder = path.join(__dirname, '../queries')
+    const files = fs.readdirSync(folder)
+    // import pokemons
+    for (let index = 0; index < files.length; index++) {
+        const file = files[index]
+        let queries:string[] = []
+        let data =  fs.readFileSync(`queries/${file}`, 'utf8')
+        queries = (data.split(";"))
+        for (let index = 0; index < queries.length; index++) {
+            await prisma.$queryRawUnsafe(`${queries[index]}`)
+        }
+    }
+    
+    
+}
 let populate = async () => {
     console.log("updating version groups...")
     await VersionGroupController.update()
@@ -76,6 +96,11 @@ let populate = async () => {
 
     console.log("updating moves...")
     await MoveController.update()
+    
+    //await 5 sec
+    console.log("waiting 5 sec...")
+    await new Promise(resolve => setTimeout(resolve, 5000))
+    //////////////////////////
 
     console.log("updating pokemons...")
     await pokemonController.update()
@@ -142,6 +167,7 @@ let testFindAbility = async () => {
     // })
 }
 let main = async () => {
-    populate()
+    await populate()
+    await runQueries()
 }
 main()
