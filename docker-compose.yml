@@ -1,5 +1,3 @@
-version: '4'
-
 services:
   pokedex_db:
     image: postgres:13-alpine
