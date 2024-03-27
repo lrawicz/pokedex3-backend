@@ -27,6 +27,7 @@ services:
 networks:
   pokedex_network:
     driver: bridge
+    name: pokedex_network
 volumes:
   pokedex_db:
     external: true
