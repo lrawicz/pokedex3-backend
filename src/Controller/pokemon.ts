@@ -209,6 +209,22 @@ export default  class pokemonController{
         if(typeof req.query.filter =="string"){
             Qfilter = JSON.parse(req.query.filter)
         }
+        if(Qfilter.abilities && String(Qfilter.abilities[0]?Qfilter.abilities[0]:"").toLowerCase() === "null"){
+            return res.json({
+                total: 0,
+                result: []
+            })
+        }
+        if (Qfilter.moves && Object.entries(Qfilter.moves)
+                .map((moveList)=>moveList[1])
+                .filter((item:any)=>{return (item.length>0?item[0]=='null':false)})
+                .length){
+            return res.json({
+                total: 0,
+                result: []
+            })
+        }
+
         if(Qfilter){
             //GENERAL
                 //TODO
