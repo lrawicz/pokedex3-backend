@@ -7,6 +7,9 @@ const prisma = new PrismaClient()
 export default  class pokemonController{
     private static  async internal_update(url:string= "https://pokeapi.co/api/v2/pokemon") {
         // This is a placeholder for the actual implementation
+
+        try{
+
         await prisma.$connect()
         let dataAll = await (await fetch(url)).json()
         const fetcher = async(path:string) => {
@@ -96,6 +99,14 @@ export default  class pokemonController{
         if(dataAll.next){
             await pokemonController.update(dataAll.next)
         }
+    }catch(error){
+        console.log(error)
+        console.log("Try again")
+        console.log("Waiting 5 sec...")
+        await new Promise(resolve => setTimeout(resolve, 5000))
+        await pokemonController.update(url)
+
+    }
     }
     static async update(url:string= "https://pokeapi.co/api/v2/pokemon") {
         await this.internal_update(url)
