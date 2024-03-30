@@ -18,8 +18,8 @@ UPDATE "move" SET "flavorText"='The user hurls giant chunks of ice at the target
 UPDATE "move" SET "flavorText"='The user shrouds itself in water and slams into the target with its whole body to inflict damage. This also damages the user quite a lot.' WHERE "name" = 'wave-crash';
 UPDATE "move" SET "flavorText"='The user swings its stone axes at the target. Stone splinters left behind by this attack float around the target.' WHERE "name" = 'stone-axe';
 UPDATE "move" SET "flavorText"='Esper Wing inflicts damage and has an increased critical hit ratio. It also raises the user''s action speed.' WHERE "name" = 'esper-wing';
-UPDATE "move" SET "flavorText"='jose' WHERE "name" = 'psyshield-bash';
-UPDATE "move" SET "flavorText"='jose' WHERE "name" = 'barb-barrage';
+UPDATE "move" SET "flavorText"='Cloaking itself in psychic energy, the user slams into the target. This may also raise the user''s defensive stats.' WHERE "name" = 'psyshield-bash';
+UPDATE "move" SET "flavorText"='The user launches countless toxic barbs to inflict damage. This may also poison the target. This move''s power is doubled if the target has a status condition.' WHERE "name" = 'barb-barrage';
 UPDATE "move" SET "flavorText"='jose' WHERE "name" = 'mystical-power';
 UPDATE "move" SET "flavorText"='jose' WHERE "name" = 'headlong-rush';
 UPDATE "move" SET "flavorText"='jose' WHERE "name" = 'bitter-malice';
