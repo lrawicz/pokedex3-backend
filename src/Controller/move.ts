@@ -130,6 +130,7 @@ export class MoveController {
         try{
             await prisma.$connect()
             let filter = JSON.parse(req.query.filter || "{}")
+            let generation = Number(req.query.generation) || 99999
             let where = {}
 
             Object.keys(filter).map((key) => {
@@ -151,7 +152,8 @@ export class MoveController {
                          break;
                     }
                 })
-            
+            where = {...where, generation:{lte:generation}}
+            console.log(where)
             result = await prisma.move.findMany({where:where})
             return res.json(result)
         }catch(error){

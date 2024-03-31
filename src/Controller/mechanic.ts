@@ -66,7 +66,7 @@ export class MechanicController {
     }
  public static async getTriggers   (req: Request, res: Response, next: any)  {
     try{
-        const result:Trigger[] = await prisma.trigger.findMany()
+        const result:Trigger[] = await prisma.trigger.findMany({orderBy: [{name: 'asc'}]})
         return res.json(result)
     }catch(error){
         return res.json([])
@@ -74,14 +74,14 @@ export class MechanicController {
 }
 public static async getTargets   (req: Request, res: Response)  {
     try{
-        const result:Target[] = await prisma.target.findMany()
+        const result:Target[] = await prisma.target.findMany({orderBy: [{name: 'asc'}]})
         return res.json(result)
     }catch(error){
         return res.json([])
     }
 }
 public static async getEffects   (req: Request, res: Response)  {
-    const result:Effect[] = await prisma.effect.findMany()
+    const result:Effect[] = await prisma.effect.findMany({orderBy: [{name: 'asc'}]})
     return res.json(result)
 }
 }   

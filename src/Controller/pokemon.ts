@@ -206,10 +206,13 @@ export default  class pokemonController{
         let Qfilter:any
         let limit: number = Number(req.query.limit)||20
         let offset:number = Number(req.query.offset)||0
+        
         if(typeof req.query.filter =="string"){
             Qfilter = JSON.parse(req.query.filter)
         }
-        if(Qfilter.abilities && String(Qfilter.abilities[0]?Qfilter.abilities[0]:"").toLowerCase() === "null"){
+        let generation = Number(Qfilter.generation) || 9999
+        if(Qfilter.abilities && 
+            (String(Qfilter.abilities[0]?Qfilter.abilities[0]:"").toLowerCase() === "null" || Qfilter.abilities.length== 0) ){
             return res.json({
                 total: 0,
                 result: []
@@ -224,15 +227,42 @@ export default  class pokemonController{
                 result: []
             })
         }
-
         if(Qfilter){
-            //GENERAL
-                //TODO
-
             //GENERATION
             where = {...where, generation:{
-                lte: isNaN(Number(Qfilter.generation))?9999:Number(Qfilter.generation)
+                lte: generation
             }}
+            //GENERAL
+            if(Qfilter.general){
+                //Colors
+                if(Qfilter.general.colors && Qfilter.general.colors.value.length>0){
+                    where = {...where, color: {in: Qfilter.general.colors.value}}
+                }
+                //TYPES
+                let tmp_where_type = {}
+                if(Qfilter.general.monotype){
+                    console.log(Qfilter.general.monotype)
+                    let tmp_where_type_monotype:any = [{type2: null}]
+                    if (Qfilter.general.type01 && Qfilter.general.type01.value.length>0)
+                        tmp_where_type_monotype.push({type1: { in: Qfilter.general.type01.value }})
+                    tmp_where_type = {AND:tmp_where_type_monotype   }
+                }else{
+                    let tmp_not_monotype:any = []
+                    if (Qfilter.general.type01 && Qfilter.general.type01.value.length>0)
+                        tmp_not_monotype.push({OR: [
+                            {type1: { in: Qfilter.general.type01.value }},
+                            {type2: { in: Qfilter.general.type01.value }}
+                        ]})
+                    if(Qfilter.general.type02 && Qfilter.general.type02.value.length > 0)
+                        tmp_not_monotype.push({OR: [
+                            {type1: { in: Qfilter.general.type02.value }},
+                            {type2: { in: Qfilter.general.type02.value }}
+                        ]})
+                    tmp_where_type = {AND: tmp_not_monotype}
+                }
+                where = {...where, ...tmp_where_type}
+            }
+
             //ABILITIES
             if(Qfilter.abilities && Qfilter.abilities.length>0){
                 switch(method){
@@ -263,7 +293,7 @@ export default  class pokemonController{
                 let tmp:any = []
 
                 await prisma.versionGroup.findFirstOrThrow(
-                    {where: {generation: Qfilter.generation},orderBy: {id: "desc"}
+                    {where: {generation:{lte:generation}},orderBy: {id: "desc"}
                 })
                 for (const item of Object.entries(Qfilter.moves)) {
                     let moveList:any = item[1]
